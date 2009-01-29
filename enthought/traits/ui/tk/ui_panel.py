@@ -19,6 +19,8 @@
 #  Imports:
 #------------------------------------------------------------------------------
 
+import Tkinter
+
 #------------------------------------------------------------------------------
 #  Constants:
 #------------------------------------------------------------------------------
@@ -40,15 +42,16 @@ def panel ( ui, parent ):
 
     # If there is 0 or 1 Groups in the content, create a single panel for it:
     if len( content ) <= 1:
-        panel = ""
+        panel = Tkinter.Frame(parent)
         if len( content ) == 1:
             # Fill the panel with the Group's content:
-            resizable, contents = fill_panel_for_group( panel, content[0], ui )
+#            resizable, contents = fill_panel_for_group( panel, content[0], ui )
+            pass
 
         return panel
     else:
-        nb = create_notebook_for_items(content, ui, parent, None)
-        return nb
+#        nb = create_notebook_for_items(content, ui, parent, None)
+        return Tkinter.Frame(parent)
 
 #------------------------------------------------------------------------------
 #  "FillPanel" class:

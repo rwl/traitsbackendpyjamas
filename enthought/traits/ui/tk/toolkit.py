@@ -39,20 +39,20 @@ null_editor_factory = EditorFactory()
 class GUIToolkit(Toolkit):
     """ Implementation class for TkInter toolkit. """
 
-#    def ui_live(self, ui, parent):
-#        """ Creates a non-modal "live update" user interface using information
-#        from the specified UI object.
-#        """
-#        import ui_live
-#        ui_live.ui_live(ui, parent)
-
-
-    def ui_nonmodal ( self, ui, parent ):
-        """ Creates a GUI-toolkit-specific non-modal dialog user interface
-            using information from the specified UI object.
+    def ui_live(self, ui, parent):
+        """ Creates a non-modal "live update" user interface using information
+        from the specified UI object.
         """
-        import ui_modal
-        ui_modal.ui_nonmodal(ui, parent)
+        import ui_live
+        ui_live.ui_live(ui, parent)
+
+
+#    def ui_nonmodal ( self, ui, parent ):
+#        """ Creates a GUI-toolkit-specific non-modal dialog user interface
+#            using information from the specified UI object.
+#        """
+#        import ui_modal
+#        ui_modal.ui_nonmodal(ui, parent)
 
 
     def view_application(self, context, view, kind=None, handler=None,

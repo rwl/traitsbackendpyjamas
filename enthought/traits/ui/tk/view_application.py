@@ -23,6 +23,30 @@ View object.
 #------------------------------------------------------------------------------
 
 import Tkinter
+import traceback
+
+#------------------------------------------------------------------------------
+# Detect if we've been called while within Tkinter's mainloop
+#------------------------------------------------------------------------------
+
+def getTkinterLocation():
+    """ Returns the location of the Tkinter module. """
+
+    if Tkinter.__file__.endswith('pyc'):
+        return Tkinter.__file__[:-1]
+    return Tkinter.__file__
+
+
+def inTkinterMainloop():
+    """ Returns true if we're called in the context of Tkinter's
+        mainloop(), and false otherwise. """
+
+    stack = traceback.extract_stack()
+    tkinter_file = getTkinterLocation()
+    for (file_name, lineno, function_name, text) in stack:
+        if (file_name, function_name) == (tkinter_file, 'mainloop'):
+            return 1
+    return 0
 
 #------------------------------------------------------------------------------
 #  Creates a Tkinter web application for display of the specified View:
@@ -55,12 +79,18 @@ def view_application(context, view, kind, handler, id, scrollable, args):
         to display all of the items in the view at one time.
 
     """
+    global app
+
+    if (kind == 'panel') or ((kind is None) and (view.kind == 'panel')):
+        kind = 'modal'
+
+    if app is None:
+        app = Tkinter.Tk() # wx.GetApp()
 
     # TODO: Check if the application is already running.
-    if True:
-        app = ViewApplication(context, view, kind, handler, id,
-            scrollable, args)
-        return app.ui.result
+    if (app is None) or (not inTkinterMainloop()):
+        return ViewApplication(context, view, kind, handler, id,
+                               scrollable, args).ui.result
     else:
         return view.ui(context, kind=kind, handler=handler, id=id,
             scrollable=scrollable, args=args).result
@@ -69,7 +99,7 @@ def view_application(context, view, kind, handler, id, scrollable, args):
 #  "ViewApplication" class:
 #-------------------------------------------------------------------------------
 
-class ViewApplication(object):
+class ViewApplication(Tkinter.Tk):
     """ A stand-alone Tkinter GUI application. """
 
     #---------------------------------------------------------------------------
@@ -89,10 +119,28 @@ class ViewApplication(object):
 
         # TODO: Enable FBI.
 
-        self.ui = ui = self.view.ui(self.context, kind=self.kind,
-            handler=self.handler, id=self.id, scrollable=self.scrollable,
-            args=self.args)
+        self.ui = ui = self.view.ui( self.context,
+                                     kind       = self.kind,
+                                     handler    = self.handler,
+                                     id         = self.id,
+                                     scrollable = self.scrollable,
+                                     args       = self.args )
 
-        Tkinter._test()
+        self.mainloop()
+
+    #---------------------------------------------------------------------------
+    #  Handles application initialization:
+    #---------------------------------------------------------------------------
+
+    def OnInit ( self ):
+        """ Handles application initialization.
+        """
+        self.ui = self.view.ui( self.context,
+                                kind       = self.kind,
+                                handler    = self.handler,
+                                id         = self.id,
+                                scrollable = self.scrollable,
+                                args       = self.args )
+        return True
 
 # EOF -------------------------------------------------------------------------

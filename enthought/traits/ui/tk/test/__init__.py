@@ -9,19 +9,6 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   28/01/2008
+#  Date:   29/01/2008
 #
 #------------------------------------------------------------------------------
-
-import Tkinter
-
-# TODO: Tkinter version checking.
-
-# TODO: Check for existing Tkinter GUI application.
-_app = None
-
-if _app is None:
-
-    _app = None
-
-# EOF -------------------------------------------------------------------------
