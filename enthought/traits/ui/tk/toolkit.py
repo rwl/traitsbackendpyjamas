@@ -25,9 +25,9 @@ from enthought.traits.ui.toolkit import Toolkit
 
 from enthought.traits.ui.editor_factory import EditorFactory
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 #  Constants:
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 # Create a dummy singleton editor factory:
 null_editor_factory = EditorFactory()
@@ -93,6 +93,72 @@ class GUIToolkit(Toolkit):
         return view_application.view_application(
             context, view, kind, handler, id, scrollable, args)
 
+    #--------------------------------------------------------------------------
+    #  Positions the associated dialog window on the display:
+    #--------------------------------------------------------------------------
+
+    def position ( self, ui ):
+        """ Positions the associated dialog window on the display.
+        """
+        view   = ui.view
+        window = ui.control
+
+        pass
+
+    #---------------------------------------------------------------------------
+    #  Shows a 'Help' window for a specified UI and control:
+    #---------------------------------------------------------------------------
+
+    def show_help ( self, ui, control ):
+        """ Shows a help window for a specified UI and control.
+        """
+        import ui_panel
+        ui_panel.show_help( ui, control )
+
+    #--------------------------------------------------------------------------
+    #  Hooks all specified events for all controls in a ui so that they can be
+    #  routed to the correct event handler:
+    #--------------------------------------------------------------------------
+
+    def hook_events ( self, ui, control, events = None, handler = None,
+                      drop_target = None ):
+        """ Hooks all specified events for all controls in a UI so that they
+            can be routed to the correct event handler.
+        """
+        if events is None:
+            events = (
+                "<Button-1>", "<Button-2>", "<Button-3>", "<ButtonRelease-1>",
+                "<ButtonRelease-2>", "<ButtonRelease-3>", "<Double-Button-1>",
+                "<Double-Button-2>", "<Double-Button-3>", "<B1-Motion>",
+                "<B2-Motion>", "<B1-Motion>", "<Enter>", "<Leave>", "<Key>",
+                "<Configure>"
+            )
+#            control.SetDropTarget( PythonDropTarget(
+#                                   DragHandler( ui = ui, control = control ) ) )
+        elif events == 'keys':
+            events = ( "<Key>", )
+
+        if handler is None:
+            handler = ui.route_event
+
+        for event in events:
+            control.bind( event, handler )
+
+        for id, child in control.children.iteritems():
+            self.hook_events( ui, child, events, handler, drop_target )
+
+    #--------------------------------------------------------------------------
+    #  Destroys a specified GUI toolkit control:
+    #--------------------------------------------------------------------------
+
+    def destroy_control ( self, control ):
+        """ Destroys a specified GUI toolkit control.
+        """
+        control.destroy()
+
+    #--------------------------------------------------------------------------
+    #  GUI toolkit dependent trait definitions:
+    #--------------------------------------------------------------------------
 
     def color_trait ( self, *args, **traits ):
         import enthought.traits.ui.null.color_trait as ct
@@ -119,9 +185,9 @@ class GUIToolkit(Toolkit):
             'WindowColor': ( 236 / 255.0, 233 / 255.0, 216 / 255.0, 1.0 )}
         return constants
 
-    #---------------------------------------------------------------------------
+    #--------------------------------------------------------------------------
     #  'EditorFactory' factory methods:
-    #---------------------------------------------------------------------------
+    #--------------------------------------------------------------------------
 
 #    def __getattribute__(self, attr):
 #        """ Return a method that returns null_editor_factory for any request to

@@ -27,6 +27,9 @@ import Tkinter
 from ui_base import \
     BaseDialog
 
+from ui_panel \
+    import panel
+
 from enthought.traits.ui.undo \
     import UndoHistory
 
@@ -162,7 +165,7 @@ class _LiveWindow(BaseDialog):
             window.protocol( "WM_DELETE_WINDOW", self._on_close_page )
             window.bind( "<Key>", self._on_key )
 
-        self.set_icon( view.icon )
+#        self.set_icon( view.icon )
 
         # Buttons -------------------------------------------------------------
 
@@ -196,7 +199,7 @@ class _LiveWindow(BaseDialog):
 
         if (not no_buttons) and (has_buttons or view.help):
 
-            b_frame = TkinterFrame(self.control)
+            b_frame = Tkinter.Frame(self.control)
 
             # Convert all button flags to actual button actions if no buttons
             # were specified in the 'buttons' trait:
@@ -242,22 +245,22 @@ class _LiveWindow(BaseDialog):
 
                 # OK button.
                 elif self.is_button( button, 'OK' ):
-                    self.ok = self.add_button( button, b_sizer, self._on_ok )
+                    self.ok = self.add_button( button, b_frame, self._on_ok )
                     ui.on_trait_change( self._on_error, 'errors',
                                         dispatch = 'ui' )
 
                 # Cancel button.
                 elif self.is_button( button, 'Cancel' ):
-                    self.add_button( button, b_sizer, self._on_cancel )
+                    self.add_button( button, b_frame, self._on_cancel )
 
                 # Help button.
                 elif self.is_button( button, 'Help' ):
-                    self.add_button( button, b_sizer, self._on_help )
+                    self.add_button( button, b_frame, self._on_help )
 
                 elif not self.is_button( button, '' ):
-                    self.add_button( button, b_sizer )
+                    self.add_button( button, b_frame )
 
-            b_frame.pack()
+            b_frame.pack(side=Tkinter.BOTTOM)
 
         # Add the menu bar, tool bar and status bar (if any):
 #        self.add_menubar()
@@ -334,5 +337,67 @@ class _LiveWindow(BaseDialog):
         """
         if event.keycode() == 0x1B:
            self._on_close_page( event )
+
+    #---------------------------------------------------------------------------
+    #  Handles an 'Undo' change request:
+    #---------------------------------------------------------------------------
+
+    def _on_undo ( self, event ):
+        """ Handles an "Undo" change request.
+        """
+        self.ui.history.undo()
+
+    #---------------------------------------------------------------------------
+    #  Handles a 'Redo' change request:
+    #---------------------------------------------------------------------------
+
+    def _on_redo ( self, event ):
+        """ Handles a "Redo" change request.
+        """
+        self.ui.history.redo()
+
+    #---------------------------------------------------------------------------
+    #  Handles a 'Revert' all changes request:
+    #---------------------------------------------------------------------------
+
+    def _on_revert ( self, event ):
+        """ Handles a request to revert all changes.
+        """
+        ui = self.ui
+        if ui.history is not None:
+            ui.history.revert()
+        ui.handler.revert( ui.info )
+
+    #---------------------------------------------------------------------------
+    #  Handles a 'Cancel' all changes request:
+    #---------------------------------------------------------------------------
+
+    def _on_cancel ( self, event ):
+        """ Handles a request to cancel all changes.
+        """
+        if self.ui.handler.close( self.ui.info, False ):
+            self._on_revert( event )
+            self.close( TK_CANCEL )
+
+    #---------------------------------------------------------------------------
+    #  Handles editing errors:
+    #---------------------------------------------------------------------------
+
+    def _on_error ( self, errors ):
+        """ Handles editing errors.
+        """
+        if errors == 0:
+            self.ok.config( state = Tkinter.NORMAL )
+        else:
+            self.ok.config( state = Tkinter.DISABLED )
+
+    #---------------------------------------------------------------------------
+    #  Handles the 'Help' button being clicked:
+    #---------------------------------------------------------------------------
+
+    def _on_help ( self, event ):
+        """ Handles the 'user clicking the Help button.
+        """
+        self.ui.handler.show_help( self.ui.info, event.widget )
 
 # EOF -------------------------------------------------------------------------

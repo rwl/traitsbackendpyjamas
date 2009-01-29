@@ -25,6 +25,13 @@ View object.
 import Tkinter
 import traceback
 
+#-------------------------------------------------------------------------------
+#  Constants:
+#-------------------------------------------------------------------------------
+
+# The Tk App object:
+app = None
+
 #------------------------------------------------------------------------------
 # Detect if we've been called while within Tkinter's mainloop
 #------------------------------------------------------------------------------
@@ -126,7 +133,7 @@ class ViewApplication(Tkinter.Tk):
                                      scrollable = self.scrollable,
                                      args       = self.args )
 
-        self.mainloop()
+#        self.mainloop()
 
     #---------------------------------------------------------------------------
     #  Handles application initialization:

@@ -159,12 +159,12 @@ class BaseDialog ( object ):
             name = action.name
         id     = action.id
 #        button = Tkinter.Button( self.control, label = name )
-        button = Tkinter.Button( sizer, label = name )
+        button = Tkinter.Button( sizer, text=name )
 
         if enabled:
-            button.config( state = "NORMAL" )
+            button.config( state = Tkinter.NORMAL )
         else:
-            button.config( state = "DISABLED" )
+            button.config( state = Tkinter.DISABLED )
 
         if (method is None) or (action.enabled_when != '') or (id != ''):
             editor = ButtonEditor( ui      = ui,
@@ -180,7 +180,7 @@ class BaseDialog ( object ):
                 method = editor.perform
 
         button.bind( "<Button-1>", method )
-        button.pack()
+        button.pack(side=Tkinter.LEFT)
 
         if action.tooltip != '':
             tip = ToolTip(button, text=action.tooltip)

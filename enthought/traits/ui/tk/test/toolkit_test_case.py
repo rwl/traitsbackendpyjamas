@@ -43,7 +43,7 @@ class Person(HasTraits):
         Item("age"),
         Item("height"),
         Item("alive")),
-        buttons=["OK", "Cancel"],
+        buttons=["OK", "Cancel", "Help"],
         kind="live"
     )
 
