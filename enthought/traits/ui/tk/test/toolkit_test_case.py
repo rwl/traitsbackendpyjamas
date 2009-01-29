@@ -27,6 +27,51 @@ ETSConfig.toolkit = "tk" # Set the GUI toolkit:
 
 from enthought.traits.api import HasTraits, Str, Int, Float, Bool
 from enthought.traits.ui.api import View, Group, Item
+from enthought.traits.ui.menu import MenuBar, ToolBar, Menu, Action
+from enthought.pyface.image_resource import ImageResource
+
+#------------------------------------------------------------------------------
+#  Constants:
+#------------------------------------------------------------------------------
+
+ICON_LOCATION = "" #enthought.traits.ui.tk.__init__.__file__
+
+#------------------------------------------------------------------------------
+#  File actions:
+#------------------------------------------------------------------------------
+
+new_action = Action(
+    name="&New", accelerator="Ctrl+N", action="new_model",
+    image=ImageResource("new.png", search_path=[ICON_LOCATION]),
+    tooltip="New (Ctrl+N)"
+)
+
+open_action = Action(
+    name="&Open", accelerator="Ctrl+O", action="open_file",
+    image=ImageResource("open.png", search_path=[ICON_LOCATION]),
+    tooltip="Open (Ctrl+O)"
+)
+
+save_action = Action(
+    name="&Save", accelerator="Ctrl+S", action="save",
+    image=ImageResource("save.png", search_path=[ICON_LOCATION]),
+    tooltip="Save (Ctrl+S)"
+)
+
+close_action = Action(
+    name="E&xit", accelerator="Alt+X", action="_on_close",
+    image=ImageResource("exit.png", search_path=[ICON_LOCATION]),
+    tooltip="Exit (Alt+X)"
+)
+
+#------------------------------------------------------------------------------
+#  Menus:
+#------------------------------------------------------------------------------
+
+file_menu = Menu("|", new_action, "_", open_action, save_action, close_action,
+    name="&File")
+
+menu_bar = MenuBar(file_menu)
 
 #------------------------------------------------------------------------------
 #  "Person" class:
@@ -43,8 +88,8 @@ class Person(HasTraits):
         Item("age"),
         Item("height"),
         Item("alive")),
-        buttons=["OK", "Cancel", "Help"],
-        kind="live"
+        buttons=["Undo", "Redo", "Revert", "OK", "Cancel", "Help"],
+        kind="live", menubar=menu_bar
     )
 
 #------------------------------------------------------------------------------

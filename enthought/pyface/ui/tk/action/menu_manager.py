@@ -122,7 +122,7 @@ class _Menu(Tkinter.Menu):
     def clear(self):
         """ Clears the items from the menu. """
 
-        self.delete(0, len(self.slaves))
+        self.delete(0, len(self.slaves()))
 
         for item in self.menu_items:
             item.dispose()

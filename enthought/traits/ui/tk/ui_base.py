@@ -90,6 +90,33 @@ class ButtonEditor ( Editor ):
 class BaseDialog ( object ):
     """ Base class for Traits UI dialog boxes.
     """
+
+    #--------------------------------------------------------------------------
+    #  Adds a menu bar to the dialog:
+    #--------------------------------------------------------------------------
+
+    def add_menubar ( self ):
+        """ Adds a menu bar to the dialog.
+        """
+        menubar = self.ui.view.menubar
+        if menubar is not None:
+            self._last_group = self._last_parent = None
+            menu = menubar.create_menu_bar( self.control, self )
+            self.control.config(menu=menu)
+            self._last_group = self._last_parent = None
+
+    #--------------------------------------------------------------------------
+    #  Returns whether the menu action should be defined in the user interface:
+    #--------------------------------------------------------------------------
+
+    def can_add_to_menu ( self, action, action_event = None ):
+        """ Returns whether the action should be defined in the user interface.
+        """
+        if action.defined_when == '':
+            return True
+
+        return self.ui.eval_when( action.defined_when )
+
     #--------------------------------------------------------------------------
     #  Sets the frame's icon:
     #--------------------------------------------------------------------------

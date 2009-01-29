@@ -220,14 +220,18 @@ class _LiveWindow(BaseDialog):
                 button = self.coerce_button( button )
                 # Undo button:
                 if self.is_button( button, 'Undo' ):
-                    self.undo = self.add_button( button, b_sizer,
+                    self.undo = self.add_button( button, b_frame,
                                                  self._on_undo, False )
-                    self.redo = self.add_button( button, b_sizer,
+
+                    self.redo = self.add_button( button, b_frame,
                                                  self._on_redo, False, 'Redo' )
+
                     history.on_trait_change( self._on_undoable, 'undoable',
                                              dispatch = 'ui' )
+
                     history.on_trait_change( self._on_redoable, 'redoable',
                                              dispatch = 'ui' )
+
                     if history.can_undo:
                         self._on_undoable( True )
 
@@ -236,7 +240,7 @@ class _LiveWindow(BaseDialog):
 
                 # Revert button.
                 elif self.is_button( button, 'Revert' ):
-                    self.revert = self.add_button( button, b_sizer,
+                    self.revert = self.add_button( button, b_frame,
                                                    self._on_revert, False )
                     history.on_trait_change( self._on_revertable, 'undoable',
                                              dispatch = 'ui' )
@@ -263,7 +267,7 @@ class _LiveWindow(BaseDialog):
             b_frame.pack(side=Tkinter.BOTTOM)
 
         # Add the menu bar, tool bar and status bar (if any):
-#        self.add_menubar()
+        self.add_menubar()
 #        self.add_toolbar()
 #        self.add_statusbar()
 
@@ -399,5 +403,41 @@ class _LiveWindow(BaseDialog):
         """ Handles the 'user clicking the Help button.
         """
         self.ui.handler.show_help( self.ui.info, event.widget )
+
+    #---------------------------------------------------------------------------
+    #  Handles the undo history 'undoable' state changing:
+    #---------------------------------------------------------------------------
+
+    def _on_undoable ( self, state ):
+        """ Handles a change to the "undoable" state of the undo history
+        """
+        if state:
+            self.undo.config( state = Tkinter.NORMAL )
+        else:
+            self.undo.config( state = Tkinter.DISABLED )
+
+    #---------------------------------------------------------------------------
+    #  Handles the undo history 'redoable' state changing:
+    #---------------------------------------------------------------------------
+
+    def _on_redoable ( self, state ):
+        """ Handles a change to the "redoable state of the undo history.
+        """
+        if state:
+            self.undo.config( state = Tkinter.NORMAL )
+        else:
+            self.undo.config( state = Tkinter.DISABLED )
+
+    #---------------------------------------------------------------------------
+    #  Handles the 'revert' state changing:
+    #---------------------------------------------------------------------------
+
+    def _on_revertable ( self, state ):
+        """ Handles a change to the "revert" state.
+        """
+        if state:
+            self.undo.config( state = Tkinter.NORMAL )
+        else:
+            self.undo.config( state = Tkinter.DISABLED )
 
 # EOF -------------------------------------------------------------------------
