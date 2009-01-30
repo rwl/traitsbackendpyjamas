@@ -91,8 +91,8 @@ def view_application(context, view, kind, handler, id, scrollable, args):
     if (kind == 'panel') or ((kind is None) and (view.kind == 'panel')):
         kind = 'modal'
 
-    if app is None:
-        app = Tkinter.Tk() # wx.GetApp()
+#    if app is None:
+#        app = Tkinter.Tk() # wx.GetApp()
 
     # TODO: Check if the application is already running.
     if (app is None) or (not inTkinterMainloop()):
@@ -106,7 +106,7 @@ def view_application(context, view, kind, handler, id, scrollable, args):
 #  "ViewApplication" class:
 #-------------------------------------------------------------------------------
 
-class ViewApplication(Tkinter.Tk):
+class ViewApplication:#(Tkinter.Tk):
     """ A stand-alone Tkinter GUI application. """
 
     #---------------------------------------------------------------------------

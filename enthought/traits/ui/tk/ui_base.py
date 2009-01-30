@@ -35,12 +35,15 @@ from editor \
 
 from tooltip import ToolTip
 
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #  Constants:
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 # List of all predefined system button names:
 SystemButtons = [ 'Undo', 'Redo', 'Apply', 'Revert', 'OK', 'Cancel', 'Help' ]
+
+# List of alternative context items that might handle an Action 'perform':
+PerformHandlers = ( 'object', 'model' )
 
 #-------------------------------------------------------------------------------
 #  'ButtonEditor' class:
@@ -105,6 +108,35 @@ class BaseDialog ( object ):
             self.control.config(menu=menu)
             self._last_group = self._last_parent = None
 
+    #---------------------------------------------------------------------------
+    #  Adds a menu item to the menu bar being constructed:
+    #---------------------------------------------------------------------------
+
+    def add_to_menu ( self, menu_item ):
+        """ Adds a menu item to the menu bar being constructed.
+        """
+        item   = menu_item.item
+        action = item.action
+
+        if action.id != '':
+            self.ui.info.bind( action.id, menu_item )
+
+#        if action.style == 'radio':
+#            if ((self._last_group is None) or
+#                (self._last_parent is not item.parent)):
+#
+#                self._last_group = RadioGroup()
+#                self._last_parent = item.parent
+#
+#            self._last_group.items.append( menu_item )
+#            menu_item.group = self._last_group
+
+        if action.enabled_when != '':
+            self.ui.add_enabled( action.enabled_when, menu_item )
+
+        if action.checked_when != '':
+            self.ui.add_checked( action.checked_when, menu_item )
+
     #--------------------------------------------------------------------------
     #  Returns whether the menu action should be defined in the user interface:
     #--------------------------------------------------------------------------
@@ -116,6 +148,31 @@ class BaseDialog ( object ):
             return True
 
         return self.ui.eval_when( action.defined_when )
+
+    #---------------------------------------------------------------------------
+    #  Performs the action described by a specified Action object:
+    #---------------------------------------------------------------------------
+
+    def perform ( self, action ):
+        """ Performs the action described by a specified Action object.
+        """
+        self.ui.do_undoable( self._perform, action )
+
+    def _perform ( self, action ):
+        method = getattr( self.ui.handler, action.action, None )
+        if method is not None:
+            method( self.ui.info )
+        else:
+            context = self.ui.context
+            for item in PerformHandlers:
+                handler = context.get( item, None )
+                if handler is not None:
+                    method = getattr( handler, action.action, None )
+                    if method is not None:
+                        method()
+                        break
+            else:
+                action.perform()
 
     #--------------------------------------------------------------------------
     #  Sets the frame's icon:

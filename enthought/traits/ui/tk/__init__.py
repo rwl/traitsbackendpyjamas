@@ -14,7 +14,7 @@
 #------------------------------------------------------------------------------
 
 """ Defines the concrete implementations of the traits Toolkit interface for
-    the CherryPy web application user interface.
+    the Tk GUI application user interface.
 """
 
 __import__('pkg_resources').declare_namespace(__name__)
@@ -25,7 +25,7 @@ __import__('pkg_resources').declare_namespace(__name__)
 
 import toolkit
 
-# Reference to the GUIToolkit object for CherryPy
+# Reference to the GUIToolkit object for Tk.
 toolkit = toolkit.GUIToolkit()
 
 # EOF -------------------------------------------------------------------------

@@ -23,6 +23,9 @@ import Tkinter
 
 import re
 
+from enthought.traits.ui.api \
+    import Group
+
 #------------------------------------------------------------------------------
 #  Constants:
 #------------------------------------------------------------------------------
@@ -47,21 +50,71 @@ def panel ( ui, parent ):
         panel = Tkinter.Frame(parent)
         if len( content ) == 1:
             # Fill the panel with the Group's content:
-#            resizable, contents = fill_panel_for_group( panel, content[0], ui )
-            pass
+            resizable, contents = fill_panel_for_group( panel, content[0], ui )
 
         return panel
     else:
 #        nb = create_notebook_for_items(content, ui, parent, None)
-        return Tkinter.Frame(parent)
+        return None#Tkinter.Frame(parent)
+
+#-------------------------------------------------------------------------------
+#  Builds the user interface for a specified Group within a specified Panel:
+#-------------------------------------------------------------------------------
+
+def fill_panel_for_group ( panel, group, ui, suppress_label = False,
+                           is_dock_window = False, create_panel = False ):
+    """ Builds the user interface for a specified Group within a specified
+        Panel.
+    """
+    fp = GroupPanel( panel, group, ui, suppress_label )
+    return ( fp.control or fp.sizer, fp.resizable )
 
 #------------------------------------------------------------------------------
 #  "FillPanel" class:
 #------------------------------------------------------------------------------
 
-class FillPanel:
+class GroupPanel:
+    """ A subpanel for a single group of items.
+    """
 
-    def add_items(self, content, panel, sizer):
+    #---------------------------------------------------------------------------
+    #  Initializes the object:
+    #---------------------------------------------------------------------------
+
+    def __init__ ( self, panel, group, ui, suppress_label ):
+        """ Initializes the object.
+        """
+        # Get the contents of the group:
+        content = group.get_content()
+
+        # Create a group editor object if one is needed:
+        self.control       = self.sizer = editor = None
+        self.ui            = ui
+        self.group         = group
+        self.is_horizontal = (group.orientation == 'horizontal')
+        layout             = group.layout
+        is_scrolled_panel  = group.scrollable
+        is_splitter        = (layout == 'split')
+        is_tabbed          = (layout == 'tabbed')
+        id                 = group.id
+
+        # Assume our contents are not resizable:
+        self.resizable = False
+
+        if self.is_horizontal:
+            self.side = Tkinter.LEFT
+        else:
+            self.side = Tkinter.TOP
+
+        if len( content ) > 0:
+            if isinstance( content[0], Group ):
+                # If so, add them to the panel and exit:
+                self.add_groups( content, panel )
+            else:
+                self.add_items( content, panel )
+
+
+    def add_items( self, content, panel ):
         """ Adds a list of Item objects to the panel. """
         # Get local references to various objects we need:
         ui      = self.ui
@@ -71,6 +124,8 @@ class FillPanel:
         group            = self.group
         show_left        = group.show_left
         padding          = group.padding
+        col              = -1
+        col_incr         = 1
 
         show_labels      = False
         for item in content:
@@ -84,11 +139,13 @@ class FillPanel:
 
             # Check if is a label:
             if name == '':
-                continue
+                Label( panel, text=item.label ).pack( side = side )
 
             # Check if it is a separator:
             if name == '_':
-                continue
+                separator = Tkinter.Frame(panel, height=2, bd=1,
+                    relief=Tkinter.SUNKEN)
+                separator.pack(fill=X, padx=5, pady=5)
 
             # Convert a blank to a 5 pixel spacer:
             if name == ' ':
@@ -96,7 +153,10 @@ class FillPanel:
 
             # Check if it is a spacer:
             if all_digits.match( name ):
-                continue
+                # If so, add the appropriate amount of space to the sizer:
+                n = int( name )
+
+                raise NotImplementedError, "Spacer aren't implemented."
 
             # Otherwise, it must be a trait Item:
             object = eval( item.object_, globals(), ui.context )
@@ -106,22 +166,19 @@ class FillPanel:
 
             # If we are displaying labels on the left, add the label to the
             # user interface:
-            if show_left:
-                if item.show_label:
-                    label = self.create_label( item, ui, desc, panel,
-                                               item_sizer )
-                elif (cols > 1) and show_labels:
-                    label = self.dummy_label( panel, item_sizer )
+            if item.show_label:
+                label = self.create_label( item, ui, desc, panel )
+            elif (cols > 1) and show_labels:
+                label = self.dummy_label( panel )
 
             # Get the editor factory associated with the Item:
             editor_factory = item.editor
             if editor_factory is None:
                 editor_factory = trait.get_editor()
 
-            # If we are displaying labels on the right, add the label to the
-            # user interface:
-            if not show_left:
-                pass
+                print "EDITOR FACTORY:", editor_factory
+
+            item_panel = panel
 
             # Create the requested type of editor from the editor factory:
             factory_method = getattr( editor_factory, item.style + '_editor' )
@@ -142,28 +199,56 @@ class FillPanel:
             item_height = item.height
             growable    = 0
             if (item_width != -1.0) or (item_height != -1.0):
-                pass
+                if (0.0 < item_width <= 1.0) and self.is_horizontal:
+                    growable   = int( 1000.0 * item_width )
+                    item_width = -1
+
+                item_width = int( item_width )
+                if item_width < -1:
+                    item_width = -item_width
+                elif item_width != -1:
+                    item_width = max( item_width, width )
+
+                if (0.0 < item_height <= 1.0) and (not self.is_horizontal):
+                    growable    = int( 1000.0 * item_height )
+                    item_height = -1
+
+                item_height = int( item_height )
+                if item_height < -1:
+                    item_height = -item_height
+                elif item_height != -1:
+                    item_height = max( item_height, height )
+
+                control.config( width = item_width, height = item_height )
 
     #---------------------------------------------------------------------------
     #  Creates an item label:
     #---------------------------------------------------------------------------
 
-    def create_label ( self, item, ui, desc, parent, sizer, suffix = ':',
-                       pad_side = "left" ):
+    def create_label ( self, item, ui, desc, parent, suffix = ':' ):
         """ Creates an item label.
         """
 
-        return ""
+        label = item.get_label( ui )
+        if (label == '') or (label[-1:] in '?=:;,.<>/\\"\'-+#|'):
+            suffix = ''
+
+        control = Tkinter.Label( parent, text = label + suffix )
+        control.pack(side=self.side)
+
+        # TODO: Tooltip using desc.
+
+        return control
 
     #---------------------------------------------------------------------------
     #  Creates a dummy item label:
     #---------------------------------------------------------------------------
 
-    def dummy_label ( self, parent, sizer ):
+    def dummy_label ( self, parent ):
         """ Creates an item label.
         """
 
-        return ""
+        return Tkinter.Label( parent, text = "" ).pack( side = self.side )
 
 #-------------------------------------------------------------------------------
 #  Displays a help window for the specified UI's active Group:

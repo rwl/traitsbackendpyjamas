@@ -55,7 +55,8 @@ class ImageResource(MImageResource, HasTraits):
     ###########################################################################
 
     def create_bitmap(self, size=None):
-        return self.create_image(size).ConvertToBitmap()
+        return self.create_image(size)#.ConvertToBitmap()
+
 
     def create_icon(self, size=None):
         ref = self._get_ref(size)

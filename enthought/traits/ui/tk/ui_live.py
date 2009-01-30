@@ -71,7 +71,7 @@ def _ui_dialog ( ui, parent, style ):
     """ Creates a live Tkinter user interface for a specified UI object.
     """
     if ui.owner is None:
-        ui.owner = _LiveWindow()
+        ui.owner = LiveWindow()
 
     ui.owner.init( ui, parent, style )
     ui.control = ui.owner.control
@@ -92,9 +92,7 @@ def _ui_dialog ( ui, parent, style ):
     # TODO: Restore the user preference items for a specified UI.
 #    restore_window( ui, is_popup = (style in Popups) )
 
-#    ui.control.Layout()
     if style == MODAL:
-#        ui.control.ShowModal()
         ui.control.grab_set()
         ui.control.focus_set()
         parent.wait_window(ui.control)
@@ -102,7 +100,7 @@ def _ui_dialog ( ui, parent, style ):
         ui.control.mainloop()
 
 
-class _LiveWindow(BaseDialog):
+class LiveWindow(BaseDialog):
     """ User interface window that immediately updates its underlying
         object(s).
     """

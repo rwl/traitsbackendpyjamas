@@ -57,7 +57,7 @@ class GUIToolkit(Toolkit):
 
     def view_application(self, context, view, kind=None, handler=None,
             id="", scrollable=None, args=None):
-        """ Creates a CherryPy web application, using information from the
+        """ Creates a Tk GUI application, using information from the
             specified View object.
 
         Parameters
