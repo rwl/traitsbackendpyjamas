@@ -178,14 +178,21 @@ class GroupPanel:
 
                 print "EDITOR FACTORY:", editor_factory
 
+                # If still no editor factory found, use a default text editor:
+#                if editor_factory is None:
+#                    from text_editor import ToolkitEditorFactory
+#                    editor_factory = ToolkitEditorFactory()
+
             item_panel = panel
 
             # Create the requested type of editor from the editor factory:
             factory_method = getattr( editor_factory, item.style + '_editor' )
-            editor         = factory_method( ui, object, name, item.tooltip,
-                                        item_panel ).set(
-                                 item        = item,
-                                 object_name = item.object )
+
+            print "FACTORY METHOD:", factory_method
+
+            editor = factory_method( ui, object, name, item.tooltip,
+                item_panel ).set( item        = item,
+                                  object_name = item.object )
 
             # Tell editor to actually build the editing widget:
             editor.prepare( item_panel )

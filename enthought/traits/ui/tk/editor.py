@@ -41,17 +41,8 @@ from enthought.traits.api \
 from enthought.traits.ui.editor \
     import Editor as UIEditor
 
-#from constants \
-#    import WindowColor, OKColor, ErrorColor
-
-OKColor = "White"
-
-ErrorColor = "#%02x%02x%02x" % ( 255, 192, 192 )
-
-if (sys.platform == 'darwin'):
-    WindowColor = "#%02x%02x%02x" % ( 232, 232, 232 )
-else:
-    WindowColor = "#%02x%02x%02x" % ( 244, 243, 238 )
+from constants \
+    import WindowColor, OKColor, ErrorColor
 
 #------------------------------------------------------------------------------
 #  'Editor' class:

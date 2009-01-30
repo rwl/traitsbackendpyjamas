@@ -90,13 +90,14 @@ menu_bar = MenuBar(
 
 class Person(HasTraits):
     name = Str
-#    age = Int
-#    height = Float
-#    alive = Bool(True)
+    age = Int
+    height = Float
+    alive = Bool(True)
 
     traits_view = View(Group(
-        Item("name"), Item("age"),
-        Item("height"), Item("alive")),
+#        Item("name"), Item("age"),
+#        Item("height"),
+        Item("alive")),
         buttons=["Undo", "Redo", "Revert", "OK", "Cancel", "Help"],
         kind="live", menubar=menu_bar, handler=Handler()
     )

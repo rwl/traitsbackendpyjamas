@@ -185,20 +185,27 @@ class GUIToolkit(Toolkit):
             'WindowColor': ( 236 / 255.0, 233 / 255.0, 216 / 255.0, 1.0 )}
         return constants
 
+    #---------------------------------------------------------------------------
+    #  'Editor' class methods:
+    #---------------------------------------------------------------------------
+
+    # Generic UI-base editor:
+    def ui_editor ( self ):
+        import ui_editor
+        return ui_editor.UIEditor
+
     #--------------------------------------------------------------------------
     #  'EditorFactory' factory methods:
     #--------------------------------------------------------------------------
 
-#    def __getattribute__(self, attr):
-#        """ Return a method that returns null_editor_factory for any request to
-#        an unimplemented ``*_editor()`` method.
-#
-#        This must be __getattribute__ to make sure that we override the
-#        definitions in the superclass which raise NotImplementedError.
-#        """
-#        if attr.endswith('_editor'):
-#            return lambda *args, **kwds: null_editor_factory
-#        else:
-#            return super(GUIToolkit, self).__getattribute__(attr)
+    # Boolean:
+    def boolean_editor ( self, *args, **traits ):
+        import boolean_editor as be
+        return be.ToolkitEditorFactory( *args, **traits )
+
+    # Text:
+    def text_editor ( self, *args, **traits ):
+        import text_editor as te
+        return te.ToolkitEditorFactory( *args, **traits )
 
 # EOF -------------------------------------------------------------------------
