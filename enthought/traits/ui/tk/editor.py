@@ -22,22 +22,12 @@
 
 import sys
 
-import Tkinter
+import Tkinter as tk
 import tkMessageBox
 
 from enthought.traits.api \
     import HasTraits, Int, Instance, Str, Callable
 
-# CIRCULAR IMPORT FIXME:
-# We are importing from the source instead of from the api in order to
-# avoid circular imports. The 'toolkit.py' file imports from 'helper' which in
-# turns imports from this file. Therefore, trying to import
-# 'enthought.traits.ui.wx' (which imports the toolkit) will lead to importing
-# all of the editor factories declared in enthought.traits.ui.api. In addition,
-# some of the editor factories have a Color trait defined, and this will lead
-# to an import of the wx 'toolkit' causing a circular import problem.
-# Another solution could be to move the GroupEditor object from helper to this
-# file.
 from enthought.traits.ui.editor \
     import Editor as UIEditor
 
@@ -57,7 +47,7 @@ class Editor ( UIEditor ):
     #--------------------------------------------------------------------------
 
     # Style for embedding control in a sizer:
-    layout_style = Str( Tkinter.BOTH )
+    layout_style = Str( tk.BOTH )
 
     # The maximum extra padding that should be allowed around the editor:
     border_size = Int( 4 )
@@ -80,11 +70,10 @@ class Editor ( UIEditor ):
         """ Updates the editor when the object trait changes externally to the
             editor.
         """
-        control = self.control
         new_value = self.str_value
-        if control.get() != new_value:
-            control.delete( 0, len(control,get()) )
-            control.insert( 0, new_value )
+        var = self.control.cget( "textvariable" )
+        if var.get() != new_value:
+            var.set( new_value )
 
     #--------------------------------------------------------------------------
     #  Handles an error that occurs while setting the object's trait value:
@@ -93,17 +82,6 @@ class Editor ( UIEditor ):
     def error ( self, excp ):
         """ Handles an error that occurs while setting the object's trait value.
         """
-#        top = Tkinter.Toplevel(self.control)
-#        top.title = (self.description + ' value error')
-#
-#        Tkinter.Label( top, text = str( excp ) ).pack()
-#        Tkinter.Button( top, text="OK", command=lambda e: e.widget.destroy())
-#
-#        top.grab_set()
-#        top.focus_set()
-#        self.control.wait_window(top)
-#
-#        top.mainloop()
         tkMessageBox.showinfo( self.description + ' value error', str( excp ) )
 
     #--------------------------------------------------------------------------
@@ -138,11 +116,9 @@ class Editor ( UIEditor ):
         control = self.control
         if control is not None:
             if enabled:
-                control.config( state=Tkinter.NORMAL )
+                control.config( state = tk.NORMAL )
             else:
-                control.config( state=Tkinter.DISABLED )
-
-#            control.Refresh()
+                control.config( state = tk.DISABLED )
 
     #--------------------------------------------------------------------------
     #  Handles the 'visible' state of the editor being changed:
@@ -197,7 +173,7 @@ class Editor ( UIEditor ):
                 color = getattr( item, '_ok_color', None )
                 if color is None:
                     color = OKColor
-                    if isinstance( item, Tkinter.Frame ):
+                    if isinstance( item, tk.Frame ):
                         color = WindowColor
 
             item.config( bg=color )

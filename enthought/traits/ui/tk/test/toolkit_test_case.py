@@ -95,9 +95,11 @@ class Person(HasTraits):
     alive = Bool(True)
 
     traits_view = View(Group(
-#        Item("name"), Item("age"),
+        Item("name"),
+#        Item("age"),
 #        Item("height"),
-        Item("alive")),
+#        Item("alive")
+        ),
         buttons=["Undo", "Redo", "Revert", "OK", "Cancel", "Help"],
         kind="live", menubar=menu_bar, handler=Handler()
     )

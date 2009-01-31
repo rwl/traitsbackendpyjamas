@@ -22,7 +22,7 @@
 
 import logging
 
-import Tkinter
+import Tkinter as tk
 
 from enthought.traits.api \
     import TraitError
@@ -41,6 +41,9 @@ from editor_factory \
 
 from constants \
     import OKColor
+
+from helper \
+    import TkDelegate
 
 #------------------------------------------------------------------------------
 #  Start logging:
@@ -87,18 +90,15 @@ class SimpleEditor ( Editor ):
             widget.
         """
         factory       = self.factory
-        style         = self.base_style
-        self.evaluate = factory.evaluate
-        self.sync_value( factory.evaluate_name, 'evaluate', 'from' )
+        var           = tk.StringVar()
+        update_object = TkDelegate( self.update_object, var = var )
 
         multi_line = factory.multi_line and (not factory.password)
 
         if multi_line:
-            control = Tkinter.Text( parent )
+            control = tk.Text( parent, textvariable = var )
         else:
-            control = Tkinter.Entry( parent )
-
-        control.insert( 0, self.str_value )
+            control = tk.Entry( parent, textvariable = var )
 
         # Controls how to display the contents of the widget.
         if factory.password:
@@ -108,9 +108,9 @@ class SimpleEditor ( Editor ):
             self.scrollable = True
 
         if factory.enter_set and (not multi_line):
-            control.bind( "<Return>", self.update_object )
+            control.bind( "<Return>", update_object )
 
-#        wx.EVT_KILL_FOCUS( control, self.update_object )
+        control.bind( "<FocusOut>", update_object )
 
         if factory.auto_set:
            control.bind( "<Key>", self.update_object )
@@ -128,6 +128,7 @@ class SimpleEditor ( Editor ):
         if (not self._no_update) and (self.control is not None):
             try:
                 self.value = self._get_user_value()
+                self.control.configure( bg = OKColor )
 
                 if self._error is not None:
                     self._error     = None
@@ -155,8 +156,7 @@ class SimpleEditor ( Editor ):
 
         if unequal:
             self._no_update = True
-            # FIXME: Clear control first.
-            self.control.insert( 0, self.str_value )
+            var.set ( self.str_value )
             self._no_update = False
 
         if self._error is not None:
@@ -171,7 +171,8 @@ class SimpleEditor ( Editor ):
     def _get_user_value ( self ):
         """ Gets the actual value corresponding to what the user typed.
         """
-        value = self.control.get()
+        var = self.control.cget('textvariable' )
+        value = var.get()
         try:
             value = self.evaluate( value )
         except:
@@ -194,6 +195,7 @@ class SimpleEditor ( Editor ):
         """ Handles an error that occurs while setting the object's trait value.
         """
         if self._error is None:
+            self.control.config( bg = ErrorColor )
             self._error     = True
             self.ui.errors += 1
 

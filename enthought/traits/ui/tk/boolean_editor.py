@@ -20,7 +20,7 @@
 #  Imports:
 #------------------------------------------------------------------------------
 
-import Tkinter
+import Tkinter as tk
 
 # FIXME: ToolkitEditorFactory is a proxy class defined here just for backward
 # compatibility. The class has been moved to the
@@ -40,6 +40,9 @@ from text_editor \
 from constants \
     import ReadonlyColor
 
+from helper \
+    import TkDelegate
+
 #------------------------------------------------------------------------------
 #  'SimpleEditor' class:
 #------------------------------------------------------------------------------
@@ -56,20 +59,23 @@ class SimpleEditor ( Editor ):
         """ Finishes initializing the editor by creating the underlying toolkit
             widget.
         """
-#        self.control = wx.CheckBox( parent, -1, '' )
-#        wx.EVT_CHECKBOX( parent, self.control.GetId(), self.update_object )
-        self.var = var = Tkinter.IntVar()
-        self.control = Tkinter.Checkbutton( parent, variable = var )
+        var = var = tk.IntVar()
+        self.control = control = tk.Checkbutton( parent,
+                                                 text     = "",
+                                                 variable = var,
+                                                 anchor = "w" )
+        control.config( command = TkDelegate( self.update_object,
+                                              var = var )() )
         self.set_tooltip()
 
     #--------------------------------------------------------------------------
     #  Handles the user clicking on the checkbox:
     #--------------------------------------------------------------------------
 
-    def update_object ( self, event ):
+    def update_object ( self, delegate ):
         """ Handles the user clicking the checkbox.
         """
-        self.value = (self.var.get() != 0)
+        self.value = (delegate.var.get() != 0)
 
     #--------------------------------------------------------------------------
     #  Updates the editor when the object trait changes external to the editor:
@@ -79,40 +85,33 @@ class SimpleEditor ( Editor ):
         """ Updates the editor when the object trait changes externally to the
             editor.
         """
-        self.var.set( self.value )
+        self.control.cget( 'variable' ).set( self.value )
 
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 #  'ReadonlyEditor' class:
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
-#class ReadonlyEditor ( Editor ):
-#    """ Read-only style of editor for Boolean values, which displays static text
-#    of either "True" or "False".
-#    """
-#    #--------------------------------------------------------------------------
-#    #  Finishes initializing the editor by creating the underlying toolkit
-#    #  widget:
-#    #--------------------------------------------------------------------------
-#
-#    def init ( self, parent ):
-#        """ Finishes initializing the editor by creating the underlying toolkit
-#            widget.
-#        """
-#        self.control = wx.TextCtrl( parent, -1, '', style = wx.TE_READONLY )
-#        self.control.SetBackgroundColour( ReadonlyColor )
-#
-#    #--------------------------------------------------------------------------
-#    #  Updates the editor when the object trait changes external to the editor:
-#    #
-#    #  (Should normally be overridden in a subclass)
-#    #--------------------------------------------------------------------------
-#
-#    def update_editor ( self ):
-#        """ Updates the editor when the object trait changes externally to the
-#            editor.
-#        """
-#        if self.value:
-#            self.control.SetLabel( 'True' )
-#        else:
-#            self.control.SetLabel( 'False' )
+class ReadonlyEditor ( Editor ):
 
+    #---------------------------------------------------------------------------
+    #  Finishes initializing the editor by creating the underlying toolkit
+    #  widget:
+    #---------------------------------------------------------------------------
+
+    def init ( self, parent ):
+        """ Finishes initialising the editor by creating the underlying toolkit
+            widget.
+        """
+        self.control = tk.Label( parent, text = '', anchor = 'e' )
+
+    #---------------------------------------------------------------------------
+    #  Updates the editor when the object trait changes external to the editor:
+    #---------------------------------------------------------------------------
+
+    def update_editor ( self ):
+        """ Updates the editor when the object trait changes external to the
+            editor.
+        """
+        self.control.config( text = [ 'False', 'True' ][ self.value ] )
+
+# EOF -------------------------------------------------------------------------
