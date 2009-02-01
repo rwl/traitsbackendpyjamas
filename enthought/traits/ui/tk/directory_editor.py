@@ -89,4 +89,31 @@ class SimpleEditor ( SimpleTextEditor ):
         # TODO: Make modal.
         dlg.popup()
 
+#-------------------------------------------------------------------------------
+#  'CustomEditor' class:
+#-------------------------------------------------------------------------------
+
+class CustomEditor ( SimpleTextEditor ):
+    """ Custom style of file editor, consisting of a file selection box.
+    """
+
+    #--------------------------------------------------------------------------
+    #  Finishes initializing the editor by creating the underlying toolkit
+    #  widget:
+    #--------------------------------------------------------------------------
+
+    def init ( self, parent ):
+        """ Finishes initializing the editor by creating the underlying toolkit
+            widget.
+        """
+        var           = tix.StringVar()
+        control       = tix.DirSelectBox( parent, textvariable = var )
+        factory       = self.factory
+        update_object = TkDelegate( self.update_object, var = var )
+
+        control.config( command = update_object )
+
+        self.control = control
+        self.set_tooltip()
+
 # EOF -------------------------------------------------------------------------
