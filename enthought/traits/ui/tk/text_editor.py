@@ -67,8 +67,8 @@ class SimpleEditor ( Editor ):
     """ Simple style text editor, which displays a text field.
     """
 
-    # Flag for window styles:
-    base_style = 0
+    # Flag for window style:
+    multi_line = False
 
     # Background color when input is OK:
     ok_color = OKColor
@@ -93,7 +93,8 @@ class SimpleEditor ( Editor ):
         var           = tk.StringVar()
         update_object = TkDelegate( self.update_object, var = var )
 
-        multi_line = factory.multi_line and (not factory.password)
+        multi_line = (factory.multi_line and (not factory.password)) \
+                                         or self.multi_line
 
         if multi_line:
             control = tk.Text( parent, textvariable = var )
@@ -218,7 +219,8 @@ class CustomEditor ( SimpleEditor ):
     """ Custom style of text editor, which displays a multi-line text field.
     """
 
-    pass
+    # Flag for window style:
+    multi_line = True
 
 #-------------------------------------------------------------------------------
 #  'ReadonlyEditor' class:
@@ -228,7 +230,22 @@ class ReadonlyEditor ( BaseReadonlyEditor ):
     """ Read-only style of text editor, which displays a read-only text field.
     """
 
-    pass
+    #---------------------------------------------------------------------------
+    #  Updates the editor when the object trait changes external to the editor:
+    #---------------------------------------------------------------------------
+
+    def update_editor ( self ):
+        """ Updates the editor when the object trait changes externally to the
+            editor.
+        """
+        new_value = self.str_value
+        var       = self.control.cget( 'textvariable' )
+
+        if self.factory.password:
+            new_value = '*' * len( new_value )
+
+        if var.get() != new_value:
+            var.set( new_value )
 
 
 TextEditor = SimpleEditor

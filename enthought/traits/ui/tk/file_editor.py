@@ -38,7 +38,7 @@ from helper \
 #  'SimpleEditor' class:
 #------------------------------------------------------------------------------
 
-class SimpleEditor(Editor):
+class SimpleEditor ( SimpleTextEditor ):
     """ Simple style of file editor.  The user can type in the filename
         manually. Alternatively, the user can press the button widget that sits
         next to the entry, which will bring up a file selection dialog.

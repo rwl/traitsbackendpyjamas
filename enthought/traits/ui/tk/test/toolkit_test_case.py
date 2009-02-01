@@ -120,7 +120,7 @@ class ToolkitTestCase(unittest.TestCase):
     def setUp(self):
         """ Prepares the test fixture before each test method is called. """
 
-        self.person = Person(name="Hannah", age=21, height=1.74)
+        self.person = Person(name="Tim", age=21, height=1.74)
 
     #--------------------------------------------------------------------------
     #  Tests:
