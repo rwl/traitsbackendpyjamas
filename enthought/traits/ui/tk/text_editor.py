@@ -172,7 +172,7 @@ class SimpleEditor ( Editor ):
     def _get_user_value ( self ):
         """ Gets the actual value corresponding to what the user typed.
         """
-        var = self.control.cget('textvariable' )
+        var = self.control.cget( 'textvariable' )
         value = var.get()
         try:
             value = self.evaluate( value )

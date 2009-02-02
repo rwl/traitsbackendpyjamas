@@ -20,7 +20,11 @@
 #  Imports:
 #------------------------------------------------------------------------------
 
-import Tix as tix
+import Tix \
+    as tix
+
+from string \
+    import capitalize
 
 # FIXME: ToolkitEditorFactory is a proxy class defined here just for backward
 # compatibility. The class has been moved to the
@@ -30,6 +34,9 @@ from enthought.traits.ui.editors.file_editor \
 
 from editor \
     import Editor
+
+from constants \
+    import OKColor
 
 from helper \
     import TkDelegate
@@ -162,181 +169,257 @@ class BaseEditor ( Editor ):
 #  'SimpleEditor' class:
 #-------------------------------------------------------------------------------
 
-#class SimpleEditor ( BaseEditor ):
-#    """ Simple style of enumeration editor, which displays a combo box.
-#    """
-#
-#    #---------------------------------------------------------------------------
-#    #  Finishes initialising the editor by creating the underlying toolkit
-#    #  widget:
-#    #---------------------------------------------------------------------------
-#
-#    def init ( self, parent ):
-#        """ Finishes initialising the editor by creating the underlying toolkit
-#            widget.
-#        """
-#        super( BaseEditor, self ).init( parent )
-#
-#        factory = self.factory
-#        if factory.evaluate is None:
-#            self.control = control = wx.Choice( parent, -1, wx.Point( 0, 0 ),
-#                                                wx.Size( -1, -1 ), self.names )
-#            wx.EVT_CHOICE( parent, self.control.GetId(), self.update_object )
-#        else:
-#            self.control = control = wx.ComboBox( parent, -1, '',
-#                                wx.Point( 0, 0 ), wx.Size( -1, -1 ), self.names,
-#                                style = wx.CB_DROPDOWN )
-#            wx.EVT_COMBOBOX( parent, control.GetId(), self.update_object )
-#            wx.EVT_TEXT_ENTER( parent, control.GetId(),
-#                               self.update_text_object )
-#            wx.EVT_KILL_FOCUS( control, self.on_kill_focus )
-#            if (not factory.is_grid_cell) and factory.auto_set:
-#                wx.EVT_TEXT( parent, control.GetId(), self.update_text_object )
-#
-#        self._no_enum_update = 0
-#        self.set_tooltip()
-#
-#    def dispose ( self ):
-#        """ Disposes of the contents of an editor.
-#        """
-#        disconnect( self.control,
-#                    wx.EVT_COMBOBOX, wx.EVT_TEXT_ENTER, wx.EVT_TEXT )
-#
-#        disconnect_no_id( self.control, wx.EVT_KILL_FOCUS )
-#
-#        super( SimpleEditor, self ).dispose()
-#
-#    #---------------------------------------------------------------------------
-#    #  Handles the user selecting a new value from the combo box:
-#    #---------------------------------------------------------------------------
-#
-#    def update_object ( self, event ):
-#        """ Handles the user selecting a new value from the combo box.
-#        """
-#        self._no_enum_update += 1
-#        try:
-#            self.value = self.mapping[ event.GetString() ]
-#        except:
-#            pass
-#        self._no_enum_update -= 1
-#
-#    #---------------------------------------------------------------------------
-#    #  Handles the user typing text into the combo box text entry field:
-#    #---------------------------------------------------------------------------
-#
-#    def update_text_object ( self, event ):
-#        """ Handles the user typing text into the combo box text entry field.
-#        """
-#        if self._no_enum_update == 0:
-#            value = self.control.GetValue()
-#            try:
-#                value = self.mapping[ value ]
-#            except:
-#                try:
-#                    value = self.factory.evaluate( value )
-#                except Exception, excp:
-#                    self.error( excp )
-#                    return
-#
-#            self._no_enum_update += 1
-#            try:
-#                self.value = value
-#                self.control.SetBackgroundColour( OKColor )
+class SimpleEditor ( BaseEditor ):
+    """ Simple style of enumeration editor, which displays a combo box.
+    """
+
+    #---------------------------------------------------------------------------
+    #  Finishes initialising the editor by creating the underlying toolkit
+    #  widget:
+    #---------------------------------------------------------------------------
+
+    def init ( self, parent ):
+        """ Finishes initialising the editor by creating the underlying toolkit
+            widget.
+        """
+        super( SimpleEditor, self ).init( parent )
+
+        factory       = self.factory
+        var           = tix.StringVar()
+        update_object = TkDelegate( self.update_object, var = var )
+
+        opts = "label.width %d label.anchor %s" % (10, Tix.E)
+        control = tix.ComboBox( parent,
+                                label    = "",
+                                dropdown = 1,
+                                command  = update_object,
+                                variable = var,
+                                options  = opts)
+
+        for name in self.names:
+            self.control.insert(tix.END, name)
+
+        if factory.evaluate is None:
+            control.config( editable = 0 )
+        else:
+            control.config( editable = 1 )
+            control.bind( "<Return>", self.update_text_object )
+            control.bind( "<FocusOut>", self.on_kill_focus )
+            if (not factory.is_grid_cell) and factory.auto_set:
+                control.bind( "<Key>", self.update_text_object )
+
+        self.control         = control
+        self._no_enum_update = 0
+        self.set_tooltip()
+
+
+    def dispose ( self ):
+        """ Disposes of the contents of an editor.
+        """
+        control = self.control
+        control.config( command = None )
+        control.unbind( "<Return>" )
+        control.unbind( "<FocusOut>" )
+        control.unbind( "<Key>" )
+
+        super( SimpleEditor, self ).dispose()
+
+    #---------------------------------------------------------------------------
+    #  Handles the user selecting a new value from the combo box:
+    #---------------------------------------------------------------------------
+
+    def update_object ( self, delegate ):
+        """ Handles the user selecting a new value from the combo box.
+        """
+        self._no_enum_update += 1
+        try:
+            self.value = self.mapping[ delegate.var.get() ]
+        except:
+            pass
+        self._no_enum_update -= 1
+
+    #---------------------------------------------------------------------------
+    #  Handles the user typing text into the combo box text entry field:
+    #---------------------------------------------------------------------------
+
+    def update_text_object ( self, delegate ):
+        """ Handles the user typing text into the combo box text entry field.
+        """
+        if self._no_enum_update == 0:
+            value = delegate.var.get()
+            try:
+                value = self.mapping[ value ]
+            except:
+                try:
+                    value = self.factory.evaluate( value )
+                except Exception, excp:
+                    self.error( excp )
+                    return
+
+            self._no_enum_update += 1
+            try:
+                self.value = value
+                self.control.config( bg = OKColor )
 #                self.control.Refresh()
-#            except:
-#                pass
-#            self._no_enum_update -= 1
-#
-#    #---------------------------------------------------------------------------
-#    #  Handles the control losing the keyboard focus:
-#    #---------------------------------------------------------------------------
-#
-#    def on_kill_focus ( self, event ):
-#        """ Handles the control losing the keyboard focus.
-#        """
-#        self.update_text_object( event )
+            except:
+                pass
+            self._no_enum_update -= 1
+
+    #---------------------------------------------------------------------------
+    #  Handles the control losing the keyboard focus:
+    #---------------------------------------------------------------------------
+
+    def on_kill_focus ( self, event ):
+        """ Handles the control losing the keyboard focus.
+        """
+        self.update_text_object( event )
 #        event.Skip()
-#
-#    #---------------------------------------------------------------------------
-#    #  Updates the editor when the object trait changes external to the editor:
-#    #---------------------------------------------------------------------------
-#
-#    def update_editor ( self ):
-#        """ Updates the editor when the object trait changes externally to the
-#            editor.
-#        """
-#        if self._no_enum_update == 0:
-#            if self.factory.evaluate is None:
-#                try:
-#                    self.control.SetStringSelection(
-#                                     self.inverse_mapping[ self.value ] )
-#                except:
-#                    pass
-#            else:
-#                try:
-#                    self.control.SetValue( self.str_value )
-#                except:
-#                    pass
-#
-#    #---------------------------------------------------------------------------
-#    #  Handles an error that occurs while setting the object's trait value:
-#    #---------------------------------------------------------------------------
-#
-#    def error ( self, excp ):
-#        """ Handles an error that occurs while setting the object's trait value.
-#        """
-#        self.control.SetBackgroundColour( ErrorColor )
+        return "break"
+
+    #---------------------------------------------------------------------------
+    #  Updates the editor when the object trait changes external to the editor:
+    #---------------------------------------------------------------------------
+
+    def update_editor ( self ):
+        """ Updates the editor when the object trait changes externally to the
+            editor.
+        """
+        var = self.control.cget( 'variable' )
+        if self._no_enum_update == 0:
+            var = self.control.cget( 'variable' )
+            var.set( self.str_value )
+
+    #---------------------------------------------------------------------------
+    #  Handles an error that occurs while setting the object's trait value:
+    #---------------------------------------------------------------------------
+
+    def error ( self, excp ):
+        """ Handles an error that occurs while setting the object's trait value.
+        """
+        self.control.config( bg = ErrorColor )
 #        self.control.Refresh()
-#
-#    #---------------------------------------------------------------------------
-#    #  Rebuilds the contents of the editor whenever the original factory
-#    #  object's 'values' trait changes:
-#    #---------------------------------------------------------------------------
-#
-#    def rebuild_editor ( self ):
-#        """ Rebuilds the contents of the editor whenever the original factory
-#            object's **values** trait changes.
-#        """
-#        # Note: This code is unnecessarily complex due to a strange bug in
-#        # wxWidgets implementation of the wx.Combobox control that has strange
-#        # behavior when the current text field value is one of the selection
-#        # values when 'Clear' is called. In this case, even saving and
-#        # restoring the text field value does not work, so we go to great
-#        # lengths to detect this case and avoid using 'Clear', but still get
-#        # the equivalent visual results. Modify this code at your own risk...
-#
-#        control  = self.control
-#        clear    = True
-#        cur_name = None
-#        if self.factory.evaluate is not None:
-#            n         = control.GetCount()
-#            cur_names = [ control.GetString( i ) for i in range( n ) ]
-#            cur_name  = control.GetValue()
-#            if cur_name in self.names:
-#                clear   = False
-#                include = True
-#                for i in range( n - 1, -1, -1 ):
-#                    if cur_name == cur_names[i]:
-#                        include = False
-#                    else:
-#                        control.Delete( i )
-#                for name in self.names:
-#                    if include or (name != cur_name):
-#                        control.Append( name )
-#                cur_name = None
-#            else:
-#                point = control.GetInsertionPoint()
-#
-#        if clear:
-#            control.Clear()
-#            control.AppendItems( self.names )
-#
-#        if cur_name is not None:
-#            self._no_enum_update += 1
-#            control.SetValue( cur_name )
-#            control.SetInsertionPoint( point )
-#            self._no_enum_update -= 1
-#
-#        self.update_editor()
+
+    #---------------------------------------------------------------------------
+    #  Rebuilds the contents of the editor whenever the original factory
+    #  object's 'values' trait changes:
+    #---------------------------------------------------------------------------
+
+    def rebuild_editor ( self ):
+        """ Rebuilds the contents of the editor whenever the original factory
+            object's **values** trait changes.
+        """
+        lb = self.control.subwidget("listbox")
+        lb.delete(0, tix.END) # delete all items
+        for name in self.names:
+            self.control.insert(tix.END, name)
+
+        self.update_editor()
+
+#-------------------------------------------------------------------------------
+#  'RadioEditor' class:
+#-------------------------------------------------------------------------------
+
+class RadioEditor ( BaseEditor ):
+    """ Enumeration editor, used for the "custom" style, that displays radio
+        buttons.
+    """
+    #---------------------------------------------------------------------------
+    #  Finishes initializing the editor by creating the underlying toolkit
+    #  widget:
+    #---------------------------------------------------------------------------
+
+    def init ( self, parent ):
+        """ Finishes initializing the editor by creating the underlying toolkit
+            widget.
+        """
+        super( RadioEditor, self ).init( parent )
+
+        # Create a panel to hold all of the radio buttons:
+        control = tix.Frame(parent)
+        control.pack()
+
+        self.control = control
+        self.rebuild_editor()
+
+    #---------------------------------------------------------------------------
+    #  Handles the user clicking one of the 'custom' radio buttons:
+    #---------------------------------------------------------------------------
+
+    def update_object( self, event ):
+        """ Handles the user clicking one of the custom radio buttons.
+        """
+        try:
+            var = event.cget( "variable" )
+            self.value = var.get()
+        except:
+            pass
+
+    #---------------------------------------------------------------------------
+    #  Updates the editor when the object trait changes external to the editor:
+    #---------------------------------------------------------------------------
+
+    def update_editor ( self ):
+        """ Updates the editor when the object trait changes externally to the
+            editor.
+        """
+        value = self.value
+        if self.control.children:
+            rb0 = self.control.children.values[0]
+            var = rb0.cget( "variable" )
+            var.set( value )
+
+    #---------------------------------------------------------------------------
+    #  Rebuilds the contents of the editor whenever the original factory
+    #  object's 'values' trait changes:
+    #---------------------------------------------------------------------------
+
+    def rebuild_editor ( self ):
+        """ Rebuilds the contents of the editor whenever the original factory
+            object's **values** trait changes.
+        """
+        # Clear any existing content:
+        for rb in self.control.values():
+            rb.destroy()
+
+        # Get the current trait value:
+        cur_name = self.str_value
+
+        var = tix.StringVar()
+        update_object = TkDelegate( self.update_object, var = var )
+
+        # Create a sizer to manage the radio buttons:
+        names   = self.names
+        mapping = self.mapping
+        n       = len( names )
+        cols    = self.factory.cols
+        rows    = (n + cols - 1) / cols
+        incr    = [ n / cols ] * cols
+        rem     = n % cols
+        for i in range( cols ):
+            incr[i] += (rem > i)
+        incr[-1] = -(reduce( lambda x, y: x + y, incr[:-1], 0 ) - 1)
+
+        # Add the set of all possible choices:
+        index = 0
+
+        for i in range( rows ):
+            for j in range( cols ):
+                if n > 0:
+                    name = label = names[ index ]
+                    label = self.string_value( label, capitalize )
+                    rb = tix.RadioButton( self.control,
+                                          text     = label,
+                                          variable = var,
+                                          value    = mapping[name],
+                                          command  = update_object)
+
+                    if name == cur_name:
+                        rb.select()
+
+                    self.set_tooltip(rb)
+                    rb.grid( row = i, column = j )
+
+                    index += incr[j]
+                    n -= 1
 
 # EOF -------------------------------------------------------------------------
