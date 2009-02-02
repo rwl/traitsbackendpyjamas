@@ -188,25 +188,38 @@ class SimpleEditor ( BaseEditor ):
         var           = tix.StringVar()
         update_object = TkDelegate( self.update_object, var = var )
 
-        opts = "label.width %d label.anchor %s" % (10, Tix.E)
-        control = tix.ComboBox( parent,
-                                label    = "",
-                                dropdown = 1,
-                                command  = update_object,
-                                variable = var,
-                                options  = opts)
-
-        for name in self.names:
-            self.control.insert(tix.END, name)
-
         if factory.evaluate is None:
-            control.config( editable = 0 )
+            opts = 'label.width 0 label.anchor e menubutton.width 15'
+            control = tix.OptionMenu( parent,
+                                      label    = "",
+                                      command  = update_object,
+                                      variable = var,
+                                      options  = opts)
+
+            for key, value in self.mapping.iteritems():
+                control.add_command( key, label = value )
+
+            control.pack( side = tix.TOP, anchor = tix.W, pady = 3, padx = 6 )
         else:
-            control.config( editable = 1 )
+            opts = "label.width %d label.anchor %s" % (10, tix.E)
+            control = tix.ComboBox( parent,
+                                    label    = "",
+                                    dropdown = 1,
+                                    editable = 1,
+                                    command  = update_object,
+                                    variable = var,
+                                    options  = opts)
+
+            for name in self.names:
+                self.control.insert(tix.END, name)
+
             control.bind( "<Return>", self.update_text_object )
             control.bind( "<FocusOut>", self.on_kill_focus )
+
             if (not factory.is_grid_cell) and factory.auto_set:
                 control.bind( "<Key>", self.update_text_object )
+
+            control.pack()
 
         self.control         = control
         self._no_enum_update = 0
@@ -308,10 +321,22 @@ class SimpleEditor ( BaseEditor ):
         """ Rebuilds the contents of the editor whenever the original factory
             object's **values** trait changes.
         """
-        lb = self.control.subwidget("listbox")
-        lb.delete(0, tix.END) # delete all items
-        for name in self.names:
-            self.control.insert(tix.END, name)
+        control = self.control
+
+        if factory.evaluate is None:
+#            for name in control.entries(): # Delete all commands
+#                control.delete(name)
+            menu = control.subwidget("menu")
+            menu.delete(0, tix.END)
+
+            for key, value in self.mapping.iteritems():
+                control.add_command( key, label = value )
+        else:
+            lb = control.subwidget("listbox")
+            lb.delete(0, tix.END) # delete all items
+
+            for name in self.names:
+                control.insert(tix.END, name)
 
         self.update_editor()
 
