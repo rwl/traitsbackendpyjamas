@@ -9,19 +9,19 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   31/01/2009
+#  Date:   22/02/2009
 #
 #------------------------------------------------------------------------------
 
-""" Helper functions used to define Tkinter based trait editors and trait
+""" Helper functions used to define Pyjamas based trait editors and trait
     editor factories.
 """
 
 #------------------------------------------------------------------------------
-#  'TkDelegate' class:
+#  'PyjsDelegate' class:
 #------------------------------------------------------------------------------
 
-class TkDelegate ( object ):
+class PyjsDelegate ( object ):
 
    #---------------------------------------------------------------------------
    #  Initialize the object:

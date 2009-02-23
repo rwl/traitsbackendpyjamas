@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 #
-#  Copyright (c) 2008, Richard W. Lincoln
+#  Copyright (c) 2009, Richard W. Lincoln
 #  All rights reserved.
 #
 #  This software is provided without warranty under the terms of the BSD
@@ -9,23 +9,18 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   21/01/2008
+#  Date:   23/02/2009
 #
 #------------------------------------------------------------------------------
 
-""" Defines the concrete implementations of the traits Toolkit interface for
-    the Tk GUI application user interface.
-"""
+import pyjamas
 
-__import__('pkg_resources').declare_namespace(__name__)
+# TODO: Pyjamas version checking.
 
-#------------------------------------------------------------------------------
-#  Define the reference to the exported GUIToolkit object:
-#------------------------------------------------------------------------------
+# TODO: Check for existing Pyjamas web application.
+_app = None
 
-import toolkit
-
-# Reference to the GUIToolkit object for Tk.
-toolkit = toolkit.GUIToolkit()
+if _app is None:
+    _app = None
 
 # EOF -------------------------------------------------------------------------

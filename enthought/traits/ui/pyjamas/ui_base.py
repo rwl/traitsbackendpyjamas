@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 #
-#  Copyright (c) 2008, Richard W. Lincoln
+#  Copyright (c) 2009, Richard W. Lincoln
 #  All rights reserved.
 #
 #  This software is provided without warranty under the terms of the BSD
@@ -9,17 +9,19 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   28/01/2008
+#  Date:   21/02/2009
 #
 #------------------------------------------------------------------------------
 
-""" Defines a base class for the Tkinter modal and non-modal dialogs. """
+""" Defines a base class for the Pyjamas modal and non-modal dialogs.
+"""
 
 #------------------------------------------------------------------------------
 #  Imports:
 #------------------------------------------------------------------------------
 
-import Tkinter
+from pyjamas.ui import Button
+from Tooltip import TooltipListener
 
 from enthought.traits.api \
     import HasStrictTraits, HasPrivateTraits, Instance, List, Event
@@ -32,8 +34,6 @@ from enthought.traits.ui.menu \
 
 from editor \
     import Editor
-
-from tooltip import ToolTip
 
 #-------------------------------------------------------------------------------
 #  Constants:
@@ -105,7 +105,9 @@ class BaseDialog ( object ):
         if menubar is not None:
             self._last_group = self._last_parent = None
             menu = menubar.create_menu_bar( self.control, self )
-            self.control.config(menu=menu)
+
+            RootPanel.add( menu )
+
             self._last_group = self._last_parent = None
 
     #---------------------------------------------------------------------------
@@ -181,11 +183,7 @@ class BaseDialog ( object ):
     def set_icon ( self, icon = None ):
         """ Sets the frame's icon.
         """
-        from enthought.pyface.image_resource import ImageResource
-
-        if not isinstance( icon, ImageResource ):
-            icon = ImageResource( 'frame.ico' )
-        self.control.wm_iconbitmap( icon.absolute_path )
+        pass
 
     #--------------------------------------------------------------------------
     #  Coerces a string to an Action if necessary:
@@ -242,13 +240,9 @@ class BaseDialog ( object ):
         if name is None:
             name = action.name
         id     = action.id
-#        button = Tkinter.Button( self.control, label = name )
-        button = Tkinter.Button( sizer, text=name )
+        button = Button( name, editor.perform )
 
-        if enabled:
-            button.config( state = Tkinter.NORMAL )
-        else:
-            button.config( state = Tkinter.DISABLED )
+        button.setEnabled(enabled)
 
         if (method is None) or (action.enabled_when != '') or (id != ''):
             editor = ButtonEditor( ui      = ui,
@@ -263,11 +257,11 @@ class BaseDialog ( object ):
             if method is None:
                 method = editor.perform
 
-        button.bind( "<Button-1>", method )
-        button.pack(side=Tkinter.LEFT)
+        self.control.add(button)
 
         if action.tooltip != '':
-            tip = ToolTip(button, text=action.tooltip)
+            listener = TooltipListener(action.tooltip)
+            button.addMouseListener(listener)
 
         return button
 

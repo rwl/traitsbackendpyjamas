@@ -9,7 +9,7 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   01/02/2009
+#  Date:   22/02/2009
 #
 #------------------------------------------------------------------------------
 
@@ -21,8 +21,8 @@
 #  Imports:
 #------------------------------------------------------------------------------
 
-import Tkinter \
-    as tk
+from pyjamas.ui import \
+    TextArea, TextBox
 
 from editor \
     import Editor
@@ -48,14 +48,13 @@ class ReadonlyEditor ( Editor ):
         """ Finishes initializing the editor by creating the underlying toolkit
             widget.
         """
-        var = tk.StringVar()
-
         if (self.item.resizable is True) or (self.item.height != -1.0):
-            control = tk.Text( parent, textvariable = var )
+            control = TextArea()
         else:
-            control = tk.Entry( parent, textvariable = var )
+            control = TextBox()
 
-        control.config( bg = WindowColor, state = tk.DISABLED )
+        control.setEnabled( False )
+        control.setStyleName( element = "color", style = WindowColor )
 
         self.control = control
         self.set_tooltip()
@@ -69,9 +68,8 @@ class ReadonlyEditor ( Editor ):
             editor.
         """
         new_value = self.str_value
-        var = self.control.cget('textvariable' )
 
-        if var.get() != new_value:
-            var.set( new_value )
+        if self.control.getText() != new_value:
+            self.control.setText( new_value )
 
 # EOF -------------------------------------------------------------------------

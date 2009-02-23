@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 #
-#  Copyright (c) 2008, Richard W. Lincoln
+#  Copyright (c) 2009, Richard W. Lincoln
 #  All rights reserved.
 #
 #  This software is provided without warranty under the terms of the BSD
@@ -9,17 +9,19 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   28/01/2008
+#  Date:   21/02/2009
 #
 #------------------------------------------------------------------------------
 
-""" Creates a panel-based user interface for a specified UI object. """
+""" Creates a panel-based user interface for a specified UI object.
+"""
 
 #------------------------------------------------------------------------------
 #  Imports:
 #------------------------------------------------------------------------------
 
-import Tkinter
+from pyjamas.ui import Panel, HorizontalPanel, VerticalPanel, Label
+from Tooltip import TooltipListener
 
 import re
 
@@ -38,7 +40,8 @@ all_digits = re.compile( r'\d+' )
 #------------------------------------------------------------------------------
 
 def panel ( ui, parent ):
-    """ Creates a panel-based user interface for a specified UI object. """
+    """ Creates a panel-based user interface for a specified UI object.
+    """
     # Bind the context values to the 'info' object:
     ui.info.bind_context()
 
@@ -47,7 +50,7 @@ def panel ( ui, parent ):
 
     # If there is 0 or 1 Groups in the content, create a single panel for it:
     if len( content ) <= 1:
-        panel = Tkinter.Frame(parent)
+        panel = Panel()
         if len( content ) == 1:
             # Fill the panel with the Group's content:
             resizable, contents = fill_panel_for_group( panel, content[0], ui )
@@ -101,10 +104,10 @@ class GroupPanel:
         # Assume our contents are not resizable:
         self.resizable = False
 
-        if self.is_horizontal:
-            self.side = Tkinter.LEFT
-        else:
-            self.side = Tkinter.TOP
+#        if self.is_horizontal:
+#            panel = HorizontalPanel()
+#        else:
+#            panel = VeticalPanel()
 
         if len( content ) > 0:
             if isinstance( content[0], Group ):
@@ -115,25 +118,25 @@ class GroupPanel:
 
 
     def add_items( self, content, panel ):
-        """ Adds a list of Item objects to the panel. """
+        """ Adds a list of Item objects to the panel.
+        """
         # Get local references to various objects we need:
         ui      = self.ui
         info    = ui.info
         handler = ui.handler
 
-        group            = self.group
-        show_left        = group.show_left
-        padding          = group.padding
-        col              = -1
-        col_incr         = 1
+        group     = self.group
+        show_left = group.show_left
+        padding   = group.padding
+        col       = -1
+        col_incr  = 1
 
-        show_labels      = False
+        show_labels = False
         for item in content:
             show_labels |= item.show_label
 
         # Process each Item in the list:
         for item in content:
-
             # Get the name in order to determine its type:
             name = item.name
 
@@ -143,9 +146,7 @@ class GroupPanel:
 
             # Check if it is a separator:
             if name == '_':
-                separator = Tkinter.Frame(panel, height=2, bd=1,
-                    relief=Tkinter.SUNKEN)
-                separator.pack(fill=X, padx=5, pady=5)
+                raise NotImplementedError, "Separators aren't implemented."
 
             # Convert a blank to a 5 pixel spacer:
             if name == ' ':
@@ -156,7 +157,7 @@ class GroupPanel:
                 # If so, add the appropriate amount of space to the sizer:
                 n = int( name )
 
-                raise NotImplementedError, "Spacer aren't implemented."
+                raise NotImplementedError, "Spacers aren't implemented."
 
             # Otherwise, it must be a trait Item:
             object = eval( item.object_, globals(), ui.context )
@@ -179,9 +180,9 @@ class GroupPanel:
                 print "EDITOR FACTORY:", editor_factory
 
                 # If still no editor factory found, use a default text editor:
-#                if editor_factory is None:
-#                    from text_editor import ToolkitEditorFactory
-#                    editor_factory = ToolkitEditorFactory()
+                if editor_factory is None:
+                    from text_editor import ToolkitEditorFactory
+                    editor_factory = ToolkitEditorFactory()
 
             item_panel = panel
 
@@ -226,7 +227,9 @@ class GroupPanel:
                 elif item_height != -1:
                     item_height = max( item_height, height )
 
-                control.config( width = item_width, height = item_height )
+                w = str( item_width ) + "px"
+                h = str( item_height ) + "px"
+                control.setSize( width = w, height = h )
 
     #---------------------------------------------------------------------------
     #  Creates an item label:
@@ -240,10 +243,11 @@ class GroupPanel:
         if (label == '') or (label[-1:] in '?=:;,.<>/\\"\'-+#|'):
             suffix = ''
 
-        control = Tkinter.Label( parent, text = label + suffix )
-        control.pack(side=self.side)
+        control = Label( text = label + suffix, wordWrap = False )
+        parent.add( control )
 
-        # TODO: Tooltip using desc.
+        listener = TooltipListener( desc )
+        control.addMouseListener( listener )
 
         return control
 
@@ -254,8 +258,9 @@ class GroupPanel:
     def dummy_label ( self, parent ):
         """ Creates an item label.
         """
-
-        return Tkinter.Label( parent, text = "" ).pack( side = self.side )
+        control = Label( text = "" )
+        parent.add( control )
+        return control
 
 #-------------------------------------------------------------------------------
 #  Displays a help window for the specified UI's active Group:
@@ -264,7 +269,6 @@ class GroupPanel:
 def show_help ( ui, button ):
     """ Displays a help window for the specified UI's active Group.
     """
-
     pass
 
 # EOF -------------------------------------------------------------------------

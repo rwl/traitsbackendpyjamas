@@ -9,11 +9,11 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   31/01/2009
+#  Date:   22/02/2009
 #
 #------------------------------------------------------------------------------
 
-""" Define the Tkinter implementation of the various button editors and the
+""" Define the Pjjamas implementation of the various button editors and the
     button editor factory.
 """
 
@@ -21,7 +21,7 @@
 #  Imports:
 #------------------------------------------------------------------------------
 
-import Tkinter as tk
+from pyjamas.ui import Button
 
 from enthought.traits.trait_base import \
     user_name_for
@@ -36,19 +36,21 @@ from editor import \
 class SimpleEditor ( Editor ):
 
     #--------------------------------------------------------------------------
-    #  Finishes initializing the editor by creating the underlying toolkit
+    #  Finishes initialising the editor by creating the underlying toolkit
     #  widget:
     #--------------------------------------------------------------------------
 
     def init ( self, parent ):
-        """ Finishes initializing the editor by creating the underlying toolkit
+        """ Finishes initialising the editor by creating the underlying toolkit
             widget.
         """
         label = self.factory.label
         if label == '':
             label = user_name_for( self.name )
-        self.control = tk.Button( parent, text    = label,
-                                          command = self.update_object )
+        self.control = control = Button( parent,
+                                         text     = label,
+                                         listener = self.update_object )
+        parent.add( control )
 
     #--------------------------------------------------------------------------
     #  Handles the user clicking the button by setting the value on the object:

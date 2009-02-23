@@ -9,15 +9,15 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   28/01/2009
+#  Date:   23/02/2009
 #
 #------------------------------------------------------------------------------
 
-""" The Tk specific implementation of a menu manager.
+""" The Pyjamas specific implementation of a menu manager.
 """
 
 # Major package imports.
-import Tkinter
+from pyjamas import MenuBar, MenuItem
 
 # Enthought library imports.
 from enthought.traits.api import Unicode
@@ -31,7 +31,7 @@ from enthought.pyface.action.group import Group
 class MenuManager(ActionManager, ActionManagerItem):
     """ A menu manager realizes itself in a menu control.
 
-    This could be a sub-menu or a context (popup) menu.
+        This could be a sub-menu or a context (popup) menu.
     """
 
     #### 'MenuManager' interface ##############################################
@@ -63,14 +63,13 @@ class MenuManager(ActionManager, ActionManagerItem):
     def add_to_menu(self, parent, menu, controller):
         """ Adds the item to a menu. """
 
-#        id  = wx.NewId()
         sub = self.create_menu(parent, controller)
 
         # fixme: Nasty hack to allow enabling/disabling of menus.
         sub._id = 0
 #        sub._menu = menu
 
-        menu.add_cascade(menu=sub, label=self.name)
+        menu.add_cascade( menu = sub, label = self.name )
 
         return
 
@@ -81,7 +80,7 @@ class MenuManager(ActionManager, ActionManagerItem):
         raise ValueError("Cannot add a menu manager to a toolbar.")
 
 
-class _Menu(Tkinter.Menu):
+class _Menu(MenuBar):
     """ The toolkit-specific menu control. """
 
     ###########################################################################
@@ -92,7 +91,7 @@ class _Menu(Tkinter.Menu):
         """ Creates a new tree. """
 
         # Base class constructor.
-        Tkinter.Menu.__init__(self, parent)
+        MenuBar.__init__(self, vertical = True)
 
         # The parent of the menu.
         self._parent = parent
@@ -120,9 +119,9 @@ class _Menu(Tkinter.Menu):
     ###########################################################################
 
     def clear(self):
-        """ Clears the items from the menu. """
-
-        self.delete(0, Tkinter.END)
+        """ Clears the items from the menu.
+        """
+        self.clearItems()
 
         for item in self.menu_items:
             item.dispose()
@@ -131,14 +130,16 @@ class _Menu(Tkinter.Menu):
 
         return
 
-    def is_empty(self):
-        """ Is the menu empty? """
 
-        return len(self.slaves()) == 0
+    def is_empty(self):
+        """ Is the menu empty?
+        """
+        return len( self.slaves() ) == 0
+
 
     def refresh(self):
-        """ Ensures that the menu reflects the state of the manager. """
-
+        """ Ensures that the menu reflects the state of the manager.
+        """
         self.clear()
 
         manager = self._manager
@@ -146,16 +147,15 @@ class _Menu(Tkinter.Menu):
 
         previous_non_empty_group = None
         for group in manager.groups:
-            previous_non_empty_group = self._add_group(
-                parent, group, previous_non_empty_group
-            )
-
+            previous_non_empty_group = self._add_group( parent, group,
+                previous_non_empty_group )
         return
 
-    def show(self, x, y):
-        """ Show the menu at the specified location. """
 
-        self.post(x, y)
+    def show(self, x, y):
+        """ Show the menu at the specified location.
+        """
+#        self.post(x, y)
         return
 
     ###########################################################################
@@ -163,24 +163,20 @@ class _Menu(Tkinter.Menu):
     ###########################################################################
 
     def _on_enabled_changed(self, obj, trait_name, old, new):
-        """ Dynamic trait change handler. """
-
+        """ Dynamic trait change handler.
+        """
         # fixme: Nasty hack to allow enabling/disabling of menus.
         #
         # We cannot currently (AFAIK) disable menus on the menu bar. Hence
         # we don't give them an '_id'...
-
         if hasattr(self, '_id'):
-            if new:
-                self.entryconfig(0, state=Tkinter.NORMAL)
-            else:
-                self.entryconfig(0, state=Tkinter.DISABLED)
-
+            self.setEnabled( new )
         return
 
-    def _add_group(self, parent, group, previous_non_empty_group=None):
-        """ Adds a group to a menu. """
 
+    def _add_group(self, parent, group, previous_non_empty_group=None):
+        """ Adds a group to a menu.
+        """
         if len(group.items) > 0:
             # Is a separator required?
             if previous_non_empty_group is not None and group.separator:

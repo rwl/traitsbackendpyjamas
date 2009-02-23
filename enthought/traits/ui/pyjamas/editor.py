@@ -9,11 +9,11 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   29/01/2009
+#  Date:   22/02/2009
 #
 #------------------------------------------------------------------------------
 
-""" Defines the base class for Tkinter editors.
+""" Defines the base class for Pyjamas editors.
 """
 
 #------------------------------------------------------------------------------
@@ -22,8 +22,9 @@
 
 import sys
 
-import Tkinter as tk
-import tkMessageBox
+from pyjamas import Window
+from pyjamas.ui import RootPanel
+from Tooltip import TooltipListener
 
 from enthought.traits.api \
     import HasTraits, Int, Instance, Str, Callable
@@ -39,7 +40,7 @@ from constants \
 #------------------------------------------------------------------------------
 
 class Editor ( UIEditor ):
-    """ Base class for wxPython editors for Traits-based UIs.
+    """ Base class for Pyjamas editors for Traits-based UIs.
     """
 
     #--------------------------------------------------------------------------
@@ -47,7 +48,7 @@ class Editor ( UIEditor ):
     #--------------------------------------------------------------------------
 
     # Style for embedding control in a sizer:
-    layout_style = Str( tk.BOTH )
+    layout_style = Str( 'both' )
 
     # The maximum extra padding that should be allowed around the editor:
     border_size = Int( 4 )
@@ -71,9 +72,8 @@ class Editor ( UIEditor ):
             editor.
         """
         new_value = self.str_value
-        var = self.control.cget( "textvariable" )
-        if var.get() != new_value:
-            var.set( new_value )
+        if self.control.getText() != new_value:
+            self.control.setText( new_value )
 
     #--------------------------------------------------------------------------
     #  Handles an error that occurs while setting the object's trait value:
@@ -82,7 +82,7 @@ class Editor ( UIEditor ):
     def error ( self, excp ):
         """ Handles an error that occurs while setting the object's trait value.
         """
-        tkMessageBox.showinfo( self.description + ' value error', str( excp ) )
+        Window.alert( self.description + ' value error' + str( excp ) )
 
     #--------------------------------------------------------------------------
     #  Sets the tooltip for a specified control:
@@ -102,7 +102,8 @@ class Editor ( UIEditor ):
         if control is None:
             control = self.control
 
-        ToolTip( control, text=desc )
+        listener = TooltipListener( desc )
+        control.addMouseListener( listener )
 
         return True
 
@@ -115,10 +116,8 @@ class Editor ( UIEditor ):
         """
         control = self.control
         if control is not None:
-            if enabled:
-                control.config( state = tk.NORMAL )
-            else:
-                control.config( state = tk.DISABLED )
+            control.setEnabled( enabled )
+
 
     #--------------------------------------------------------------------------
     #  Handles the 'visible' state of the editor being changed:
@@ -168,15 +167,15 @@ class Editor ( UIEditor ):
             if state:
                 color = ErrorColor
                 if getattr( item, '_ok_color', None ) is None:
-                    item._ok_color = item.cget("bg")
+                    item._ok_color = item.getStyleName( "color" )
             else:
                 color = getattr( item, '_ok_color', None )
                 if color is None:
                     color = OKColor
-                    if isinstance( item, tk.Frame ):
+                    if isinstance( item, RootPanel ):
                         color = WindowColor
 
-            item.config( bg=color )
+            item.setStyleName( element = "color", style = color )
 
     #--------------------------------------------------------------------------
     #  Handles the editor's invalid state changing:

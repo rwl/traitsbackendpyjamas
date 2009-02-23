@@ -13,14 +13,15 @@
 #
 #------------------------------------------------------------------------------
 
-""" Defines the file editors for the Tk user interface toolkit.
+""" Defines the file editors for the Pyjamas web interface toolkit.
 """
 
 #------------------------------------------------------------------------------
 #  Imports:
 #------------------------------------------------------------------------------
 
-import Tix as tix
+from pyjamas.ui \
+    import FileUpload, FormPanel, Button
 
 # FIXME: ToolkitEditorFactory is a proxy class defined here just for backward
 # compatibility. The class has been moved to the
@@ -32,7 +33,7 @@ from text_editor \
     import SimpleEditor as SimpleTextEditor
 
 from helper \
-    import TkDelegate
+    import PyjsDelegate
 
 #------------------------------------------------------------------------------
 #  'SimpleEditor' class:
@@ -53,22 +54,38 @@ class SimpleEditor ( SimpleTextEditor ):
         """ Finishes initializing the editor by creating the underlying toolkit
             widget.
         """
-        var           = tix.StringVar()
-        control       = tix.FileEntry( parent, textvariable = var )
-        factory       = self.factory
-        update_object = TkDelegate( self.update_object, var = var )
+        # Create a FormPanel and point it at a service.
+        control = FormPanel()
+        control.setAction( self.update_object )
 
-        if factory.enter_set:
-#            control.bind( "<Return>", update_object)
-            control.config( command = update_object )
+        # Because we're going to add a FileUpload widget, we'll need to set the
+        # form to use the POST method, and multipart MIME encoding.
+        control.setEncoding(FormPanel.ENCODING_MULTIPART)
+        control.setMethod(FormPanel.METHOD_POST)
 
-        control.bind( "<FocusOut>", update_object )
+        upload = FileUpload()
+        upload.setName("File...")
+        factory = self.factory
+        control.add(upload)
 
-        if factory.auto_set:
-           control.bind( "<Key>", self.update_object )
+        # Add a 'submit' button.
+        control.add(Button("Submit", self))
 
+#        if factory.enter_set:
+#            control.addFormHandler( self.update_object, "<Return>" )
+
+#        control.addFocusListener( self.update_object )
+
+#        if factory.auto_set:
+#           control.addKeyboadListener( self.update_object )
+
+        parent.add( control )
         self.control = control
         self.set_tooltip()
+
+
+    def onClick(self, sender):
+        self.control.submit()
 
 #-------------------------------------------------------------------------------
 #  'CustomEditor' class:
@@ -87,13 +104,12 @@ class CustomEditor ( SimpleTextEditor ):
         """ Finishes initializing the editor by creating the underlying toolkit
             widget.
         """
-        var           = tix.StringVar()
-        control       = tix.FileSelectBox( parent, textvariable = var )
-        factory       = self.factory
-        update_object = TkDelegate( self.update_object, var = var )
+        control = FileUpload()
+        factory = self.factory
 
-        control.config( browsecmd = update_object )
+        control.onLoad( self.update_object )
 
+        parent.add( control )
         self.control = control
         self.set_tooltip()
 

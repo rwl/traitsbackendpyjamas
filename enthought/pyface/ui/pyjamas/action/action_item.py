@@ -9,27 +9,24 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   29/01/2009
+#  Date:   23/02/2009
 #
 #------------------------------------------------------------------------------
 
-""" The Tk specific implementations the action manager internal classes.
+""" The Pyjamas specific implementations the action manager internal classes.
 """
 
 # Standard libary imports.
 from inspect import getargspec
 
 # Major package imports.
-import Tkinter
+from pyjamas.ui import MenuItem
 
 # Enthought library imports.
 from enthought.traits.api import Any, Bool, HasTraits, Int
 
 # Local imports.
 from enthought.pyface.action.action_event import ActionEvent
-
-# from enthought.traits.ui.tk.tooltip import ToolTip
-
 
 #_STYLE_TO_KIND_MAP = {
 #    'push'   : wx.ITEM_NORMAL,
@@ -96,7 +93,7 @@ class _MenuItem(HasTraits):
 
 #        self.control_id = wx.NewId()
 #        self.control = wx.MenuItem(menu, self.control_id, label, longtip, kind)
-        self.control = menu
+        self.control = MenuItem(text=label, asHtml=True, subMenu=menu)
 
         # If the action has an image then display it.
         bitmap = None
@@ -106,21 +103,21 @@ class _MenuItem(HasTraits):
         self.idx = idx = len(menu.keys())
 
         if kind == "push":
-            menu.add_command(label=label, accelerator=action.accelerator)#, bitmap=bitmap)
+            menu.addItem(label=label)
         elif kind == "radio":
-            menu.add_radiobutton(label=label, accelerator=action.accelerator)#, bitmap=bitmap)
+            menu.addItem(label=label)
         elif kind == "toggle":
-            menu.add_checkbox(label=label, accelerator=action.accelerator)#, bitmap=bitmap)
+            menu.addItem(label=label)
         else:
             raise ValueError, "Invalid 'kind' trait value [%s]." % kind
 
-        menu.menu_items.append(self)
+        menu.addItem(self.control)
 
         # Set the initial enabled/disabled state of the action.
         if action.enabled and action.visible:
-            menu.entryconfig( idx, state = Tkinter.NORMAL )
+            menu.setEnabled(True)
         else:
-            menu.entryconfig( idx, state = Tkinter.DISABLED )
+            menu.setEnabled(False)
 
         # Set the initial checked state.
         if action.style in ['radio', 'toggle']:
@@ -131,7 +128,7 @@ class _MenuItem(HasTraits):
         # Wire it up...create an ugly flag since some platforms dont skip the
         # event when we thought they would
         self._skip_menu_event = False
-        menu.bind("<Button-1>", self._on_menu)
+        menu.setCommand( self._on_menu )
 
         # Listen for trait changes on the action (so that we can update its
         # enabled/disabled/checked state etc).
@@ -165,23 +162,22 @@ class _MenuItem(HasTraits):
     #### Trait event handlers #################################################
 
     def _enabled_changed(self):
-        """ Called when our 'enabled' trait is changed. """
-
+        """ Called when our 'enabled' trait is changed.
+        """
         if self.enabled and self.visible:
-            self.control.entryconfig( self.idx, state = Tkinter.NORMAL )
+            self.control.setEnabled( True )
         else:
-            self.control.entryconfig( self.idx, state = Tkinter.DISABLED )
-
+            self.control.setEnabled( False )
         return
 
+
     def _visible_changed(self):
-        """ Called when our 'visible' trait is changed. """
-
+        """ Called when our 'visible' trait is changed.
+        """
         if self.enabled and self.visible:
-            self.control.entryconfig( self.idx, state = Tkinter.NORMAL )
+            self.control.setVisible( True )
         else:
-            self.control.entryconfig( self.idx, state = Tkinter.DISABLED )
-
+            self.control.setVisible( False )
         return
 
     def _checked_changed(self):
@@ -203,29 +199,30 @@ class _MenuItem(HasTraits):
                     if item is not self.item:
                         item.action.checked = False
 
-        self.control.Check(self.checked)
+#        self.control.Check(self.checked)
 
         return
+
 
     def _on_action_enabled_changed(self, action, trait_name, old, new):
-        """ Called when the enabled trait is changed on an action. """
-
+        """ Called when the enabled trait is changed on an action.
+        """
         if action.enabled and action.visible:
-            self.control.entryconfig( self.idx, state = Tkinter.NORMAL )
+            self.control.setEnabled( True )
         else:
-            self.control.entryconfig( self.idx, state = Tkinter.DISABLED )
-
+            self.control.setEnabled( False )
         return
+
 
     def _on_action_visible_changed(self, action, trait_name, old, new):
-        """ Called when the visible trait is changed on an action. """
-
+        """ Called when the visible trait is changed on an action.
+        """
         if action.enabled and action.visible:
-            self.control.entryconfig( self.idx, state = Tkinter.NORMAL )
+            self.control.setVisible( True )
         else:
-            self.control.entryconfig( self.idx, state = Tkinter.DISABLED )
-
+            self.control.setVisible( False )
         return
+
 
     def _on_action_checked_changed(self, action, trait_name, old, new):
         """ Called when the checked trait is changed on an action. """
@@ -248,72 +245,72 @@ class _MenuItem(HasTraits):
 
         # This will *not* emit a menu event because of this ugly flag
         self._skip_menu_event = True
-        self.control.Check(action.checked)
+#        self.control.Check(action.checked)
         self._skip_menu_event = False
 
         return
 
+
     def _on_action_name_changed(self, action, trait_name, old, new):
-        """ Called when the name trait is changed on an action. """
-
-        self.control.SetText(action.name)
-
+        """ Called when the name trait is changed on an action.
+        """
+        self.control.setText( action.name )
         return
 
     #### wx event handlers ####################################################
 
-    def _on_menu(self, event):
-        """ Called when the menu item is clicked. """
-
-        # if the ugly flag is set, do not perform the menu event
-        if self._skip_menu_event:
-            return
-
-        action = self.item.action
-        action_event = ActionEvent()
-
-        is_checkable = action.style in ['radio', 'toggle']
-
-        # Perform the action!
-        if self.controller is not None:
-            if is_checkable:
-                # fixme: There is a difference here between having a controller
-                # and not in that in this case we do not set the checked state
-                # of the action! This is confusing if you start off without a
-                # controller and then set one as the action now behaves
-                # differently!
-                self.checked = self.control.IsChecked() == 1
-
-            # Most of the time, action's do no care about the event (it
-            # contains information about the time the event occurred etc), so
-            # we only pass it if the perform method requires it. This is also
-            # useful as Traits UI controllers *never* require the event.
-            args, varargs, varkw, dflts = getargspec(self.controller.perform)
-
-            # If the only arguments are 'self' and 'action' then don't pass
-            # the event!
-            if len(args) == 2:
-                self.controller.perform(action)
-
-            else:
-                self.controller.perform(action, action_event)
-
-        else:
-            if is_checkable:
-                action.checked = self.control.IsChecked() == 1
-
-            # Most of the time, action's do no care about the event (it
-            # contains information about the time the event occurred etc), so
-            # we only pass it if the perform method requires it.
-            args, varargs, varkw, dflts = getargspec(action.perform)
-
-            # If the only argument is 'self' then don't pass the event!
-            if len(args) == 1:
-                action.perform()
-
-            else:
-                action.perform(action_event)
-
-        return
+#    def _on_menu(self, event):
+#        """ Called when the menu item is clicked. """
+#
+#        # if the ugly flag is set, do not perform the menu event
+#        if self._skip_menu_event:
+#            return
+#
+#        action = self.item.action
+#        action_event = ActionEvent()
+#
+#        is_checkable = action.style in ['radio', 'toggle']
+#
+#        # Perform the action!
+#        if self.controller is not None:
+#            if is_checkable:
+#                # fixme: There is a difference here between having a controller
+#                # and not in that in this case we do not set the checked state
+#                # of the action! This is confusing if you start off without a
+#                # controller and then set one as the action now behaves
+#                # differently!
+#                self.checked = self.control.IsChecked() == 1
+#
+#            # Most of the time, action's do no care about the event (it
+#            # contains information about the time the event occurred etc), so
+#            # we only pass it if the perform method requires it. This is also
+#            # useful as Traits UI controllers *never* require the event.
+#            args, varargs, varkw, dflts = getargspec(self.controller.perform)
+#
+#            # If the only arguments are 'self' and 'action' then don't pass
+#            # the event!
+#            if len(args) == 2:
+#                self.controller.perform(action)
+#
+#            else:
+#                self.controller.perform(action, action_event)
+#
+#        else:
+#            if is_checkable:
+#                action.checked = self.control.IsChecked() == 1
+#
+#            # Most of the time, action's do no care about the event (it
+#            # contains information about the time the event occurred etc), so
+#            # we only pass it if the perform method requires it.
+#            args, varargs, varkw, dflts = getargspec(action.perform)
+#
+#            # If the only argument is 'self' then don't pass the event!
+#            if len(args) == 1:
+#                action.perform()
+#
+#            else:
+#                action.perform(action_event)
+#
+#        return
 
 #### EOF ######################################################################

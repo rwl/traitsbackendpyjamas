@@ -9,18 +9,18 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   30/01/2009
+#  Date:   22/02/2009
 #
 #------------------------------------------------------------------------------
 
-""" Defines the various Boolean editors for the wxPython user interface toolkit.
+""" Defines the various Boolean editors for the Pyjamas user interface toolkit.
 """
 
 #------------------------------------------------------------------------------
 #  Imports:
 #------------------------------------------------------------------------------
 
-import Tkinter as tk
+from pyjamas.ui import CheckBox, Label
 
 # FIXME: ToolkitEditorFactory is a proxy class defined here just for backward
 # compatibility. The class has been moved to the
@@ -41,7 +41,7 @@ from constants \
     import ReadonlyColor
 
 from helper \
-    import TkDelegate
+    import PyjsDelegate
 
 #------------------------------------------------------------------------------
 #  'SimpleEditor' class:
@@ -51,21 +51,17 @@ class SimpleEditor ( Editor ):
     """ Simple style of editor for Boolean values, which displays a check box.
     """
     #--------------------------------------------------------------------------
-    #  Finishes initializing the editor by creating the underlying toolkit
+    #  Finishes initialising the editor by creating the underlying toolkit
     #  widget:
     #--------------------------------------------------------------------------
 
     def init ( self, parent ):
-        """ Finishes initializing the editor by creating the underlying toolkit
+        """ Finishes initialising the editor by creating the underlying toolkit
             widget.
         """
-        var = var = tk.IntVar()
-        self.control = control = tk.Checkbutton( parent,
-                                                 text     = "",
-                                                 variable = var,
-                                                 anchor = "w" )
-        control.config( command = TkDelegate( self.update_object,
-                                              var = var )() )
+        self.control = control = CheckBox()
+        parent.add( control )
+        control.addClickListener( self.update_object )
         self.set_tooltip()
 
     #--------------------------------------------------------------------------
@@ -75,7 +71,7 @@ class SimpleEditor ( Editor ):
     def update_object ( self, delegate ):
         """ Handles the user clicking the checkbox.
         """
-        self.value = (delegate.var.get() != 0)
+        self.value = (delegate.isChecked() != 0)
 
     #--------------------------------------------------------------------------
     #  Updates the editor when the object trait changes external to the editor:
@@ -85,7 +81,7 @@ class SimpleEditor ( Editor ):
         """ Updates the editor when the object trait changes externally to the
             editor.
         """
-        self.control.cget( 'variable' ).set( self.value )
+        self.control.setChecked( self.value )
 
 #-------------------------------------------------------------------------------
 #  'ReadonlyEditor' class:
@@ -102,7 +98,9 @@ class ReadonlyEditor ( Editor ):
         """ Finishes initialising the editor by creating the underlying toolkit
             widget.
         """
-        self.control = tk.Label( parent, text = '', anchor = 'e' )
+        control = Label( text = '' )
+        parent.add( control )
+        self.control = control
 
     #---------------------------------------------------------------------------
     #  Updates the editor when the object trait changes external to the editor:
@@ -112,6 +110,6 @@ class ReadonlyEditor ( Editor ):
         """ Updates the editor when the object trait changes external to the
             editor.
         """
-        self.control.config( text = [ 'False', 'True' ][ self.value ] )
+        self.control.setText( text = [ 'False', 'True' ][ self.value ] )
 
 # EOF -------------------------------------------------------------------------

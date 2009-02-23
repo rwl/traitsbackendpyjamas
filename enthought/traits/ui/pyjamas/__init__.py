@@ -9,31 +9,23 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   29/01/2009
+#  Date:   23/02/2009
 #
 #------------------------------------------------------------------------------
 
-""" Defines constants used by the Tk implementation of the various text
-    editors and text editor factories.
+""" Defines the concrete implementations of the traits Toolkit interface for
+    the Pyjamas web application user interface.
 """
 
-#------------------------------------------------------------------------------
-#  Imports:
-#------------------------------------------------------------------------------
-
-import sys
+__import__('pkg_resources').declare_namespace(__name__)
 
 #------------------------------------------------------------------------------
-#  Constants:
+#  Define the reference to the exported GUIToolkit object:
 #------------------------------------------------------------------------------
 
-OKColor = "White"
+import toolkit
 
-ErrorColor = "#%02x%02x%02x" % ( 255, 192, 192 )
-
-if (sys.platform == 'darwin'):
-    WindowColor = "#%02x%02x%02x" % ( 232, 232, 232 )
-else:
-    WindowColor = "#%02x%02x%02x" % ( 244, 243, 238 )
+# Reference to the GUIToolkit object for Pyjamas.
+toolkit = toolkit.GUIToolkit()
 
 # EOF -------------------------------------------------------------------------

@@ -9,11 +9,11 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   30/01/2009
+#  Date:   23/02/2009
 #
 #------------------------------------------------------------------------------
 
-""" Defines the various text editors for the Tk user interface toolkit.
+""" Defines the various text editors for the Pyjamas web toolkit.
 """
 
 #------------------------------------------------------------------------------
@@ -22,7 +22,8 @@
 
 import logging
 
-import Tkinter as tk
+from pyjamas.ui \
+    import TextBox, TextArea, PasswordTextBox
 
 from enthought.traits.api \
     import TraitError
@@ -43,7 +44,7 @@ from constants \
     import OKColor
 
 from helper \
-    import TkDelegate
+    import PyjsDelegate
 
 #------------------------------------------------------------------------------
 #  Start logging:
@@ -90,32 +91,30 @@ class SimpleEditor ( Editor ):
             widget.
         """
         factory       = self.factory
-        var           = tk.StringVar()
-        update_object = TkDelegate( self.update_object, var = var )
+#        update_object = PyjsDelegate( self.update_object, var = var )
 
         multi_line = (factory.multi_line and (not factory.password)) \
                                          or self.multi_line
 
-        if multi_line:
-            control = tk.Text( parent, textvariable = var )
-        else:
-            control = tk.Entry( parent, textvariable = var )
-
-        # Controls how to display the contents of the widget.
         if factory.password:
-            control.config( show = "*" )
+            control = PasswordTextBox()
+        elif multi_line:
+            control = TextArea()
+        else:
+            control = TextBox()
 
         if multi_line:
             self.scrollable = True
 
         if factory.enter_set and (not multi_line):
-            control.bind( "<Return>", update_object )
+            control.addKeyboadListener(self.update_object, "<Return>")
 
-        control.bind( "<FocusOut>", update_object )
+        control.addFocusListener( self.update_object )
 
         if factory.auto_set:
-           control.bind( "<Key>", self.update_object )
+           control.addKeyboadListener( self.update_object )
 
+        parent.add(control)
         self.control = control
         self.set_tooltip()
 
@@ -129,7 +128,7 @@ class SimpleEditor ( Editor ):
         if (not self._no_update) and (self.control is not None):
             try:
                 self.value = self._get_user_value()
-                self.control.configure( bg = OKColor )
+                self.control.setStyleName( "color", OKColor )
 
                 if self._error is not None:
                     self._error     = None
@@ -172,8 +171,7 @@ class SimpleEditor ( Editor ):
     def _get_user_value ( self ):
         """ Gets the actual value corresponding to what the user typed.
         """
-        var = self.control.cget( 'textvariable' )
-        value = var.get()
+        value = self.control.getText()
         try:
             value = self.evaluate( value )
         except:
@@ -196,8 +194,8 @@ class SimpleEditor ( Editor ):
         """ Handles an error that occurs while setting the object's trait value.
         """
         if self._error is None:
-            self.control.config( bg = ErrorColor )
-            self._error     = True
+            self.control.setStyleName( "color", ErrorColor )
+            self._error = True
             self.ui.errors += 1
 
         self.set_error_state( True )
@@ -239,13 +237,12 @@ class ReadonlyEditor ( BaseReadonlyEditor ):
             editor.
         """
         new_value = self.str_value
-        var       = self.control.cget( 'textvariable' )
 
         if self.factory.password:
             new_value = '*' * len( new_value )
 
-        if var.get() != new_value:
-            var.set( new_value )
+        if self.control.getText() != new_value:
+            self.control.setText( new_value )
 
 
 TextEditor = SimpleEditor

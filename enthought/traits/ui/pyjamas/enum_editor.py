@@ -13,18 +13,17 @@
 #
 #------------------------------------------------------------------------------
 
-""" Defines the file editors for the Tk user interface toolkit.
+""" Defines the file editors for the Pyjamas web interface toolkit.
 """
 
 #------------------------------------------------------------------------------
 #  Imports:
 #------------------------------------------------------------------------------
 
-import Tix \
-    as tix
-
 from string \
     import capitalize
+
+from pyjamas.ui import ListBox, Panel, RadioButton
 
 # FIXME: ToolkitEditorFactory is a proxy class defined here just for backward
 # compatibility. The class has been moved to the
@@ -39,7 +38,7 @@ from constants \
     import OKColor
 
 from helper \
-    import TkDelegate
+    import PyjsDelegate
 
 #------------------------------------------------------------------------------
 #  'BaseEditor' class:
@@ -68,7 +67,7 @@ class BaseEditor ( Editor ):
     #---------------------------------------------------------------------------
 
     def init ( self, parent ):
-        """ Finishes initializing the editor by creating the underlying toolkit
+        """ Finishes initialising the editor by creating the underlying toolkit
             widget.
         """
         factory = self.factory
@@ -185,43 +184,37 @@ class SimpleEditor ( BaseEditor ):
         super( SimpleEditor, self ).init( parent )
 
         factory       = self.factory
-        var           = tix.StringVar()
-        update_object = TkDelegate( self.update_object, var = var )
+#        var           = tix.StringVar()
+#        update_object = PyjsDelegate( self.update_object, var = var )
 
         if factory.evaluate is None:
-            opts = 'label.width 0 label.anchor e menubutton.width 15'
-            control = tix.OptionMenu( parent,
-                                      label    = "",
-                                      command  = update_object,
-                                      variable = var,
-                                      options  = opts)
+            control = ListBox()
+            control.setName( "" )
+            control.addChangeListener( self.update_object )
+            control.setMultipleSelect( True )
 
             for key, value in self.mapping.iteritems():
-                control.add_command( key, label = value )
+                control.addItem( item = key, value = value )
 
-            control.pack( side = tix.TOP, anchor = tix.W, pady = 3, padx = 6 )
+            parent.add(control)
         else:
-            opts = "label.width %d label.anchor %s" % (10, tix.E)
-            control = tix.ComboBox( parent,
-                                    label    = "",
-                                    dropdown = 1,
-                                    editable = 1,
-                                    command  = update_object,
-                                    variable = var,
-                                    options  = opts)
+            control = ListBox()
+            control.setName( "" )
+            control.addChangeListener( self.update_object )
+            control.setMultipleSelect( False )
 
             for name in self.names:
-                self.control.insert(tix.END, name)
+                self.control.addItem( name )
 
-            control.bind( "<Return>", self.update_text_object )
-            control.bind( "<FocusOut>", self.on_kill_focus )
+            control.addKeyboardListener( self.update_text_object )
+            control.addFocusListener( self.on_kill_focus )
 
             if (not factory.is_grid_cell) and factory.auto_set:
-                control.bind( "<Key>", self.update_text_object )
+                control.setKeyboardListener( self.update_text_object )
 
             control.pack()
 
-        self.control         = control
+        self.control = control
         self._no_enum_update = 0
         self.set_tooltip()
 
@@ -231,9 +224,9 @@ class SimpleEditor ( BaseEditor ):
         """
         control = self.control
         control.config( command = None )
-        control.unbind( "<Return>" )
-        control.unbind( "<FocusOut>" )
-        control.unbind( "<Key>" )
+        control.removeKeyboardListener( self.update_text_object )
+        control.removeFocusListener( self.on_kill_focus )
+#        control.removeKeyboardListener( self.update_text_object )
 
         super( SimpleEditor, self ).dispose()
 
@@ -246,7 +239,8 @@ class SimpleEditor ( BaseEditor ):
         """
         self._no_enum_update += 1
         try:
-            self.value = self.mapping[ delegate.var.get() ]
+            index = delegate.getSelectedIndex()
+            self.value = self.mapping[ delegate.getValue( index ) ]
         except:
             pass
         self._no_enum_update -= 1
@@ -259,7 +253,8 @@ class SimpleEditor ( BaseEditor ):
         """ Handles the user typing text into the combo box text entry field.
         """
         if self._no_enum_update == 0:
-            value = delegate.var.get()
+            index = delegate.getSelectedIndex()
+            value = delegate.getValue( index )
             try:
                 value = self.mapping[ value ]
             except:
@@ -272,7 +267,7 @@ class SimpleEditor ( BaseEditor ):
             self._no_enum_update += 1
             try:
                 self.value = value
-                self.control.config( bg = OKColor )
+                self.control.setStyleName( "color", OKColor )
 #                self.control.Refresh()
             except:
                 pass
@@ -297,10 +292,8 @@ class SimpleEditor ( BaseEditor ):
         """ Updates the editor when the object trait changes externally to the
             editor.
         """
-        var = self.control.cget( 'variable' )
         if self._no_enum_update == 0:
-            var = self.control.cget( 'variable' )
-            var.set( self.str_value )
+            self.control.setSelectedIndex( self.inverse_mapping[ self.value ] )
 
     #---------------------------------------------------------------------------
     #  Handles an error that occurs while setting the object's trait value:
@@ -309,7 +302,7 @@ class SimpleEditor ( BaseEditor ):
     def error ( self, excp ):
         """ Handles an error that occurs while setting the object's trait value.
         """
-        self.control.config( bg = ErrorColor )
+        self.control.setStyleName( "color", ErrorColor )
 #        self.control.Refresh()
 
     #---------------------------------------------------------------------------
@@ -324,19 +317,15 @@ class SimpleEditor ( BaseEditor ):
         control = self.control
 
         if factory.evaluate is None:
-#            for name in control.entries(): # Delete all commands
-#                control.delete(name)
-            menu = control.subwidget("menu")
-            menu.delete(0, tix.END)
+            control.clear()
 
             for key, value in self.mapping.iteritems():
-                control.add_command( key, label = value )
+                control.addItem( item = key, value = value )
         else:
-            lb = control.subwidget("listbox")
-            lb.delete(0, tix.END) # delete all items
+            control.clear()
 
             for name in self.names:
-                control.insert(tix.END, name)
+                control.addItem( item = name)
 
         self.update_editor()
 
@@ -349,19 +338,19 @@ class RadioEditor ( BaseEditor ):
         buttons.
     """
     #---------------------------------------------------------------------------
-    #  Finishes initializing the editor by creating the underlying toolkit
+    #  Finishes initialising the editor by creating the underlying toolkit
     #  widget:
     #---------------------------------------------------------------------------
 
     def init ( self, parent ):
-        """ Finishes initializing the editor by creating the underlying toolkit
+        """ Finishes initialising the editor by creating the underlying toolkit
             widget.
         """
         super( RadioEditor, self ).init( parent )
 
         # Create a panel to hold all of the radio buttons:
-        control = tix.Frame(parent)
-        control.pack()
+        control = Panel()
+        parent.add( control )
 
         self.control = control
         self.rebuild_editor()
@@ -373,11 +362,14 @@ class RadioEditor ( BaseEditor ):
     def update_object( self, event ):
         """ Handles the user clicking one of the custom radio buttons.
         """
-        try:
-            var = event.cget( "variable" )
-            self.value = var.get()
-        except:
-            pass
+#        try:
+#            index = event.getSelectedIndex()
+#            self.value = event.getValue( index )
+#        except:
+#            pass
+
+        index = event.getSelectedIndex()
+        self.value = event.getValue( index )
 
     #---------------------------------------------------------------------------
     #  Updates the editor when the object trait changes external to the editor:
@@ -409,9 +401,6 @@ class RadioEditor ( BaseEditor ):
         # Get the current trait value:
         cur_name = self.str_value
 
-        var = tix.StringVar()
-        update_object = TkDelegate( self.update_object, var = var )
-
         # Create a sizer to manage the radio buttons:
         names   = self.names
         mapping = self.mapping
@@ -424,6 +413,8 @@ class RadioEditor ( BaseEditor ):
             incr[i] += (rem > i)
         incr[-1] = -(reduce( lambda x, y: x + y, incr[:-1], 0 ) - 1)
 
+        grid = Grid( rows = rows, columns = cols )
+
         # Add the set of all possible choices:
         index = 0
 
@@ -432,17 +423,16 @@ class RadioEditor ( BaseEditor ):
                 if n > 0:
                     name = label = names[ index ]
                     label = self.string_value( label, capitalize )
-                    rb = tix.RadioButton( self.control,
-                                          text     = label,
-                                          variable = var,
-                                          value    = mapping[name],
-                                          command  = update_object)
+                    rb = RadioButton( group = id( self.control ),
+                                      label = label )
 
                     if name == cur_name:
-                        rb.select()
+                        self.control.setChecked( True )
+                    else:
+                        self.control.setChecked( False )
 
-                    self.set_tooltip(rb)
-                    rb.grid( row = i, column = j )
+                    self.set_tooltip( rb )
+                    grid.setWidget( row = i, column = j, widget = rb )
 
                     index += incr[j]
                     n -= 1

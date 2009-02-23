@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 #
-#  Copyright (c) 2008, Richard W. Lincoln
+#  Copyright (c) 2009, Richard W. Lincoln
 #  All rights reserved.
 #
 #  This software is provided without warranty under the terms of the BSD
@@ -9,7 +9,7 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   29/01/2008
+#  Date:   23/02/2009
 #
 #------------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@
 import os
 
 # Major package imports.
-import Tkinter
+from pyjamas.ui import Image
 
 # Enthought library imports.
 from enthought.traits.api import Any, HasTraits, implements, List, Property
@@ -32,7 +32,7 @@ from enthought.pyface.i_image_resource import IImageResource, MImageResource
 
 class ImageResource(MImageResource, HasTraits):
     """ The toolkit specific implementation of an ImageResource.  See the
-    IImageResource interface for the API documentation.
+        IImageResource interface for the API documentation.
     """
 
     implements(IImageResource)
@@ -62,13 +62,11 @@ class ImageResource(MImageResource, HasTraits):
         ref = self._get_ref(size)
 
         if ref is not None:
-            icon = Tkinter.PhotoImage(self.absolute_path)
+            icon = Image(self.absolute_path)
         else:
             image = self._get_image_not_found_image()
 
-            # You can use a PhotoImage instance everywhere Tkinter accepts an
-            # image object.
-            icon = Tkinter.PhotoImage(image.absolute_path)
+            icon = Image(image.absolute_path)
 
         return icon
 
@@ -77,7 +75,7 @@ class ImageResource(MImageResource, HasTraits):
     ###########################################################################
 
     def _get_absolute_path(self):
-        # FIXME: This doesn't quite wotk the new notion of image size. We
+        # FIXME: This doesn't quite work the new notion of image size. We
         # should find out who is actually using this trait, and for what!
         # (AboutDialog uses it to include the path name in some HTML.)
         ref = self._get_ref()

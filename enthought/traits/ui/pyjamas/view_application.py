@@ -13,54 +13,29 @@
 #
 #------------------------------------------------------------------------------
 
-""" Creates a Tkinter GUI application, using information from the specified
-View object.
-
+""" Defines a Pyjamas web application, using information from the specified
+    View object.
 """
 
 #------------------------------------------------------------------------------
 #  Imports:
 #------------------------------------------------------------------------------
 
-import Tkinter
 import traceback
 
 #-------------------------------------------------------------------------------
 #  Constants:
 #-------------------------------------------------------------------------------
 
-# The Tk App object:
+# The Pyjamas App object:
 app = None
 
 #------------------------------------------------------------------------------
-# Detect if we've been called while within Tkinter's mainloop
-#------------------------------------------------------------------------------
-
-def getTkinterLocation():
-    """ Returns the location of the Tkinter module. """
-
-    if Tkinter.__file__.endswith('pyc'):
-        return Tkinter.__file__[:-1]
-    return Tkinter.__file__
-
-
-def inTkinterMainloop():
-    """ Returns true if we're called in the context of Tkinter's
-        mainloop(), and false otherwise. """
-
-    stack = traceback.extract_stack()
-    tkinter_file = getTkinterLocation()
-    for (file_name, lineno, function_name, text) in stack:
-        if (file_name, function_name) == (tkinter_file, 'mainloop'):
-            return 1
-    return 0
-
-#------------------------------------------------------------------------------
-#  Creates a Tkinter web application for display of the specified View:
+#  Creates a Pyjamas web application for display of the specified View:
 #------------------------------------------------------------------------------
 
 def view_application(context, view, kind, handler, id, scrollable, args):
-    """ Creates a Tkinter application to display a specified traits UI
+    """ Creates a Pyjamas application to display a specified traits UI
     View.
 
     Parameters
@@ -92,30 +67,31 @@ def view_application(context, view, kind, handler, id, scrollable, args):
         kind = 'modal'
 
 #    if app is None:
-#        app = Tkinter.Tk() # wx.GetApp()
+#        app = Window() # wx.GetApp()
 
     # TODO: Check if the application is already running.
-    if (app is None) or (not inTkinterMainloop()):
+    if app is None:
         return ViewApplication(context, view, kind, handler, id,
                                scrollable, args).ui.result
     else:
         return view.ui(context, kind=kind, handler=handler, id=id,
-            scrollable=scrollable, args=args).result
+                       scrollable=scrollable, args=args).result
 
 #-------------------------------------------------------------------------------
 #  "ViewApplication" class:
 #-------------------------------------------------------------------------------
 
-class ViewApplication:#(Tkinter.Tk):
-    """ A stand-alone Tkinter GUI application. """
+class ViewApplication:
+    """ A stand-alone Pyjamas web application.
+    """
 
     #---------------------------------------------------------------------------
-    #  Initializes the object:
+    #  Initialises the object:
     #---------------------------------------------------------------------------
 
     def __init__(self, context, view, kind, handler, id, scrollable, args):
-        """ Initializes the object. """
-
+        """ Initialises the object.
+        """
         self.context = context
         self.view = view
         self.kind = kind
@@ -140,7 +116,7 @@ class ViewApplication:#(Tkinter.Tk):
     #---------------------------------------------------------------------------
 
     def OnInit ( self ):
-        """ Handles application initialization.
+        """ Handles application initialisation.
         """
         self.ui = self.view.ui( self.context,
                                 kind       = self.kind,

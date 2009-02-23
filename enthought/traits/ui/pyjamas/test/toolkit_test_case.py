@@ -13,7 +13,7 @@
 #
 #------------------------------------------------------------------------------
 
-""" Defines a test for the Tkinter 'toolkit'. """
+""" Defines a test for the Pyjamas web 'toolkit'. """
 
 #------------------------------------------------------------------------------
 #  Imports:
@@ -23,7 +23,7 @@ import unittest
 
 from enthought.traits.trait_base import ETSConfig
 
-ETSConfig.toolkit = "tk" # Set the GUI toolkit:
+ETSConfig.toolkit = "pyjamas" # Set the GUI toolkit:
 
 from enthought.traits.api import HasTraits, Str, Int, Float, Bool
 from enthought.traits.ui.api import View, Group, Item, Handler
@@ -34,7 +34,7 @@ from enthought.pyface.image_resource import ImageResource
 #  Constants:
 #------------------------------------------------------------------------------
 
-ICON_LOCATION = "" #enthought.traits.ui.tk.__init__.__file__
+ICON_LOCATION = "" #enthought.traits.ui.pyjamas.__init__.__file__
 
 #------------------------------------------------------------------------------
 #  File actions:
@@ -109,7 +109,7 @@ class Person(HasTraits):
 #------------------------------------------------------------------------------
 
 class ToolkitTestCase(unittest.TestCase):
-    """ Tests for the Tkinter toolkit. """
+    """ Tests for the Pyjamas web toolkit. """
 
     person = None
 

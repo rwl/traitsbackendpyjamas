@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 #
-#  Copyright (c) 2008, Richard W. Lincoln
+#  Copyright (c) 2009, Richard W. Lincoln
 #  All rights reserved.
 #
 #  This software is provided without warranty under the terms of the BSD
@@ -9,12 +9,12 @@
 #  is also available online at http://www.enthought.com/licenses/BSD.txt
 #
 #  Author: Richard W. Lincoln
-#  Date:   28/01/2008
+#  Date:   21/02/2009
 #
 #------------------------------------------------------------------------------
 
 """ Defines the concrete implementations of the traits Toolkit interface for
-    the TkInter user interface.
+    the Pyjamas user interface.
 """
 
 #------------------------------------------------------------------------------
@@ -37,11 +37,12 @@ null_editor_factory = EditorFactory()
 #------------------------------------------------------------------------------
 
 class GUIToolkit(Toolkit):
-    """ Implementation class for TkInter toolkit. """
+    """ Implementation class for Pyjamas toolkit.
+    """
 
     def ui_live(self, ui, parent):
         """ Creates a non-modal "live update" user interface using information
-        from the specified UI object.
+            from the specified UI object.
         """
         import ui_live
         ui_live.ui_live(ui, parent)
@@ -57,7 +58,7 @@ class GUIToolkit(Toolkit):
 
     def view_application(self, context, view, kind=None, handler=None,
             id="", scrollable=None, args=None):
-        """ Creates a Tk GUI application, using information from the
+        """ Creates a Pyjamas web application, using information from the
             specified View object.
 
         Parameters
@@ -85,9 +86,7 @@ class GUIToolkit(Toolkit):
             Indicates whether the dialog box should be scrollable. When set to
             True, scroll bars appear on the dialog box if it is not large
             enough to display all of the items in the view at one time.
-
         """
-
         import view_application
 
         return view_application.view_application(
