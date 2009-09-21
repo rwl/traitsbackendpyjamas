@@ -52,7 +52,6 @@ def panel ( ui, parent ):
 
     # If there is 0 or 1 Groups in the content, create a single panel for it:
     if len( content ) <= 1:
-        print VerticalPanel, Group
         panel = VerticalPanel()
         if len( content ) == 1:
             # Fill the panel with the Group's content:
