@@ -20,7 +20,8 @@
 #  Imports:
 #------------------------------------------------------------------------------
 
-from pyjamas.ui import CheckBox, Label
+from pyjamas.ui.Checkbox import CheckBox
+from pyjamas.ui.Label import Label
 
 # FIXME: ToolkitEditorFactory is a proxy class defined here just for backward
 # compatibility. The class has been moved to the
@@ -61,7 +62,7 @@ class SimpleEditor ( Editor ):
         """
         self.control = control = CheckBox()
         parent.add( control )
-        control.addClickListener( self.update_object )
+#        control.addClickListener( self.update_object )
         self.set_tooltip()
 
     #--------------------------------------------------------------------------

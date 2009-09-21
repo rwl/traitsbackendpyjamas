@@ -36,4 +36,6 @@ if (sys.platform == 'darwin'):
 else:
     WindowColor = "#%02x%02x%02x" % ( 244, 243, 238 )
 
+ReadonlyColor = WindowColor
+
 # EOF -------------------------------------------------------------------------

@@ -21,8 +21,12 @@
 #  Imports:
 #------------------------------------------------------------------------------
 
+import pyjd
+
 from pyjamas import Window
-from pyjamas.ui import PopupPanel
+from pyjamas.ui.RootPanel import RootPanel
+from pyjamas.ui.PopupPanel import PopupPanel
+from pyjamas.ui.VerticalPanel import VerticalPanel
 
 from ui_base import \
     BaseDialog
@@ -68,12 +72,13 @@ def _ui_dialog ( ui, parent, style ):
     """ Creates a live Pyjamas user interface for a specified UI object.
     """
     if ui.owner is None:
+        # Toolkit-specific object that "owns" **control**
         ui.owner = LiveWindow()
 
     ui.owner.init( ui, parent, style )
     ui.control = ui.owner.control
 #    ui.control._parent = parent
-    ui.control.transient(parent) # Associate this window with a parent window.
+#    ui.control.transient(parent) # Associate this window with a parent window.
 
     try:
         ui.prepare_ui()
@@ -94,7 +99,9 @@ def _ui_dialog ( ui, parent, style ):
         ui.control.focus_set()
         parent.wait_window(ui.control)
     else:
-        ui.control.mainloop()
+#        ui.control.mainloop()
+        RootPanel().add(ui.control)
+        pyjd.run()
 
 
 class LiveWindow(BaseDialog):
@@ -110,7 +117,7 @@ class LiveWindow(BaseDialog):
         """ Initialises the dialog. """
 
         self.is_modal = (style == MODAL)
-        window_style = 0
+#        window_style = 0
         view = ui.view
 #        if view.resizable:
 #            window_style |= (True, True)
@@ -134,13 +141,13 @@ class LiveWindow(BaseDialog):
         else:
             self.ui = ui
             if style == MODAL:
-                window = Window
-                window.setTitle( title )
+                window = VerticalPanel()
+#                window.setTitle( title )
                 if view.resizable:
                     pass
             elif style == NONMODAL:
-                window = Window
-                window.setTitle( title )
+                window = VerticalPanel()
+#                window.setTitle( title )
                 if parent is not None:
                     pass
             else:
@@ -183,13 +190,15 @@ class LiveWindow(BaseDialog):
         else:
             sw = panel( ui, window )
 
+        RootPanel().add(sw)
+
         #----------------------------------------------------------------------
         #  Add special function buttons (OK, Cancel, etc) as necessary:
         #----------------------------------------------------------------------
 
         if (not no_buttons) and (has_buttons or view.help):
 
-            b_frame = Panel()
+            b_frame = VerticalPanel()
 
             # Convert all button flags to actual button actions if no buttons
             # were specified in the 'buttons' trait:
@@ -254,7 +263,7 @@ class LiveWindow(BaseDialog):
                 elif not self.is_button( button, '' ):
                     self.add_button( button, b_frame )
 
-            RootPanel.add( b_frame )
+            RootPanel().add( b_frame )
 
         # Add the menu bar, tool bar and status bar (if any):
         self.add_menubar()

@@ -20,8 +20,9 @@
 #  Imports:
 #------------------------------------------------------------------------------
 
-from pyjamas.ui import Button
-from Tooltip import TooltipListener
+from pyjamas.ui.Button import Button
+from pyjamas.ui.RootPanel import RootPanel
+#from Tooltip import TooltipListener
 
 from enthought.traits.api \
     import HasStrictTraits, HasPrivateTraits, Instance, List, Event
@@ -106,7 +107,7 @@ class BaseDialog ( object ):
             self._last_group = self._last_parent = None
             menu = menubar.create_menu_bar( self.control, self )
 
-            RootPanel.add( menu )
+            RootPanel().add( menu )
 
             self._last_group = self._last_parent = None
 
@@ -240,7 +241,9 @@ class BaseDialog ( object ):
         if name is None:
             name = action.name
         id     = action.id
-        button = Button( name, editor.perform )
+        button = Button( name )#, editor.perform )
+
+        print "Adding button:", name, self.control
 
         button.setEnabled(enabled)
 
@@ -259,9 +262,9 @@ class BaseDialog ( object ):
 
         self.control.add(button)
 
-        if action.tooltip != '':
-            listener = TooltipListener(action.tooltip)
-            button.addMouseListener(listener)
+#        if action.tooltip != '':
+#            listener = TooltipListener(action.tooltip)
+#            button.addMouseListener(listener)
 
         return button
 

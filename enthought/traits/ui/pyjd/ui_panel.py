@@ -19,14 +19,16 @@
 #------------------------------------------------------------------------------
 #  Imports:
 #------------------------------------------------------------------------------
-
-from pyjamas.ui import Panel, HorizontalPanel, VerticalPanel, Label
-from Tooltip import TooltipListener
+#from Tooltip import TooltipListener
 
 import re
 
 from enthought.traits.ui.api \
     import Group
+
+#from pyjamas.ui import HorizontalPanel, VerticalPanel, Label
+from pyjamas.ui.VerticalPanel import VerticalPanel
+from pyjamas.ui.Label import Label
 
 #------------------------------------------------------------------------------
 #  Constants:
@@ -50,7 +52,8 @@ def panel ( ui, parent ):
 
     # If there is 0 or 1 Groups in the content, create a single panel for it:
     if len( content ) <= 1:
-        panel = Panel()
+        print VerticalPanel, Group
+        panel = VerticalPanel()
         if len( content ) == 1:
             # Fill the panel with the Group's content:
             resizable, contents = fill_panel_for_group( panel, content[0], ui )
@@ -146,7 +149,9 @@ class GroupPanel:
 
             # Check if it is a separator:
             if name == '_':
-                raise NotImplementedError, "Separators aren't implemented."
+#                raise NotImplementedError, "Separators aren't implemented."
+                print "Separators aren't implemented."
+                return
 
             # Convert a blank to a 5 pixel spacer:
             if name == ' ':
@@ -177,8 +182,6 @@ class GroupPanel:
             if editor_factory is None:
                 editor_factory = trait.get_editor()
 
-                print "EDITOR FACTORY:", editor_factory
-
                 # If still no editor factory found, use a default text editor:
                 if editor_factory is None:
                     from text_editor import ToolkitEditorFactory
@@ -188,8 +191,6 @@ class GroupPanel:
 
             # Create the requested type of editor from the editor factory:
             factory_method = getattr( editor_factory, item.style + '_editor' )
-
-            print "FACTORY METHOD:", factory_method
 
             editor = factory_method( ui, object, name, item.tooltip,
                 item_panel ).set( item        = item,
@@ -240,14 +241,15 @@ class GroupPanel:
         """
 
         label = item.get_label( ui )
+        print item, label
         if (label == '') or (label[-1:] in '?=:;,.<>/\\"\'-+#|'):
             suffix = ''
 
         control = Label( text = label + suffix, wordWrap = False )
         parent.add( control )
 
-        listener = TooltipListener( desc )
-        control.addMouseListener( listener )
+#        listener = TooltipListener( desc )
+#        control.addMouseListener( listener )
 
         return control
 

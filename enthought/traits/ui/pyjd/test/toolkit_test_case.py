@@ -23,7 +23,7 @@ import unittest
 
 from enthought.traits.trait_base import ETSConfig
 
-ETSConfig.toolkit = "pyjamas" # Set the GUI toolkit:
+ETSConfig.toolkit = "pyjd" # Set the GUI toolkit:
 
 from enthought.traits.api import HasTraits, Str, Int, Float, Bool
 from enthought.traits.ui.api import View, Group, Item, Handler

@@ -21,6 +21,12 @@
 #  Imports:
 #------------------------------------------------------------------------------
 
+import pyjd
+from pyjamas.ui.Label import Label
+from pyjamas.ui.RootPanel import RootPanel
+
+pyjd.setup("TraitsBackendPyjamas.html")
+
 from enthought.traits.ui.toolkit import Toolkit
 
 from enthought.traits.ui.editor_factory import EditorFactory
@@ -92,6 +98,13 @@ class GUIToolkit(Toolkit):
         return view_application.view_application(
             context, view, kind, handler, id, scrollable, args)
 
+#        if (kind == 'panel') or ((kind is None) and (view.kind == 'panel')):
+#            kind = 'modal'
+#
+#        ui = view.ui( context, kind, handler, id, scrollable, args )
+#
+#        return ui.result
+
     #--------------------------------------------------------------------------
     #  Positions the associated dialog window on the display:
     #--------------------------------------------------------------------------
@@ -140,11 +153,11 @@ class GUIToolkit(Toolkit):
         if handler is None:
             handler = ui.route_event
 
-        for event in events:
-            control.bind( event, handler )
+#        for event in events:
+#            control.bind( event, handler )
 
-        for id, child in control.children.iteritems():
-            self.hook_events( ui, child, events, handler, drop_target )
+#        for id, child in control.children.iteritems():
+#            self.hook_events( ui, child, events, handler, drop_target )
 
     #--------------------------------------------------------------------------
     #  Destroys a specified GUI toolkit control:
@@ -160,8 +173,9 @@ class GUIToolkit(Toolkit):
     #--------------------------------------------------------------------------
 
     def color_trait ( self, *args, **traits ):
-        import enthought.traits.ui.null.color_trait as ct
-        return ct.NullColor( *args, **traits )
+#        import enthought.traits.ui.null.color_trait as ct
+#        return ct.NullColor( *args, **traits )
+        return None
 
 
     def rgb_color_trait ( self, *args, **traits ):

@@ -21,7 +21,7 @@
 #  Imports:
 #------------------------------------------------------------------------------
 
-from pyjamas.ui import Button
+from pyjamas.ui.Button import Button
 
 from enthought.traits.trait_base import \
     user_name_for
@@ -47,9 +47,9 @@ class SimpleEditor ( Editor ):
         label = self.factory.label
         if label == '':
             label = user_name_for( self.name )
-        self.control = control = Button( parent,
-                                         text     = label,
-                                         listener = self.update_object )
+        self.control = control = Button( label )#parent,
+#                                         text     = label,
+#                                         listener = self.update_object )
         parent.add( control )
 
     #--------------------------------------------------------------------------

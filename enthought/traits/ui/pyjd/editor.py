@@ -22,9 +22,9 @@
 
 import sys
 
-from pyjamas import Window
-from pyjamas.ui import RootPanel
-from Tooltip import TooltipListener
+#from pyjamas import Window
+#from pyjamas.ui import RootPanel
+#from Tooltip import TooltipListener
 
 from enthought.traits.api \
     import HasTraits, Int, Instance, Str, Callable

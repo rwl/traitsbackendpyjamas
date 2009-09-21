@@ -22,8 +22,9 @@
 
 import logging
 
-from pyjamas.ui \
-    import TextBox, TextArea, PasswordTextBox
+from pyjamas.ui.TextBox import TextBox
+from pyjamas.ui.TextArea import TextArea
+from pyjamas.ui.PasswordTextBox import PasswordTextBox
 
 from enthought.traits.api \
     import TraitError
@@ -111,8 +112,8 @@ class SimpleEditor ( Editor ):
 
         control.addFocusListener( self.update_object )
 
-        if factory.auto_set:
-           control.addKeyboadListener( self.update_object )
+#        if factory.auto_set:
+#           control.addKeyboadListener( self.update_object )
 
         parent.add(control)
         self.control = control
@@ -156,7 +157,7 @@ class SimpleEditor ( Editor ):
 
         if unequal:
             self._no_update = True
-            var.set ( self.str_value )
+            self.control.setText( self.str_value )
             self._no_update = False
 
         if self._error is not None:
