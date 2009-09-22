@@ -46,4 +46,6 @@ else:
 
 ReadonlyColor = WindowColor
 
+DefaultTitle = "Edit properties"
+
 # EOF -------------------------------------------------------------------------

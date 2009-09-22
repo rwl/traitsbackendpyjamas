@@ -28,21 +28,12 @@ Notes
 -----
 
 traits.ui.pyjd.toolkit.GUIToolkit().view_application(view)
-
 traits.ui.view.View().ui()
-
 traits.ui.ui.UI().ui() # kind = "live"
-
 traits.ui.pyjd.toolkit.GUIToolkit.ui_live()
-
 traits.ui.pyjd.ui_live.ui_live()
-
 traits.ui.pyjd.ui_live.ui_panel(NONMODAL)
-
 traits.ui.pyjd.ui_live.LiveWindow().init()
-
 traits.ui.pyjd.ui_panel.panel()
-
 traits.ui.pyjd.ui_panel.fill_panel_for_group()
-
 traits.ui.pyjd.ui_panel.GroupPanel().create_label()
