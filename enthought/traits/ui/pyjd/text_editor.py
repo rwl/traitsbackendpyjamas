@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-#  Copyright (c) 2005, Enthought, Inc.
+#  Copyright (c) 2008, Riverbank Computing Limited
 #  Copyright (c) 2009, Richard Lincoln
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy

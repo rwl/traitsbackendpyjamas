@@ -34,34 +34,60 @@ from enthought.traits.api \
 from enthought.traits.ui.ui_traits \
     import convert_image, SequenceTypes
 
-#------------------------------------------------------------------------------
-#  'PyjsDelegate' class:
-#------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#  Positions a window on the screen with a specified width and height so that
+#  the window completely fits on the screen if possible:
+#-------------------------------------------------------------------------------
 
-class PyjsDelegate ( object ):
+def position_window ( window, width = None, height = None, parent = None ):
+    """ Positions a window on the screen with a specified width and height so
+        that the window completely fits on the screen if possible.
+    """
+    # Get the available geometry of the screen containing the window.
+#    sgeom = QtGui.QApplication.desktop().availableGeometry(window)
+    screen_dx = 0#sgeom.width()
+    screen_dy = 0#sgeom.height()
 
-   #---------------------------------------------------------------------------
-   #  Initialize the object:
-   #---------------------------------------------------------------------------
+    # Use the frame geometry even though it is very unlikely that the X11 frame
+    # exists at this point.
+    fgeom = window.frameGeometry()
+    width = width or fgeom.width()
+    height = height or fgeom.height()
 
-   def __init__ ( self, delegate = None, **kw ):
-       self.delegate = delegate
-       for name, value in kw.items():
-           setattr( self, name, value )
+    if parent is None:
+        parent = window._parent
 
-   #---------------------------------------------------------------------------
-   #  Return the handle method for the delegate:
-   #---------------------------------------------------------------------------
+    if parent is None:
+        # Center the popup on the screen.
+        window.move((screen_dx - width) / 2, (screen_dy - height) / 2)
+        return
 
-   def __call__ ( self ):
-       return self.on_event
+    # Calculate the desired size of the popup control:
+    if isinstance(parent, Widget):
+#        gpos = parent.mapToGlobal(QtCore.QPoint())
+        x = 0#gpos.x()
+        y = 0#gpos.y()
+        cdx = parent.width()
+        cdy = parent.height()
 
-   #---------------------------------------------------------------------------
-   #  Handle an event:
-   #---------------------------------------------------------------------------
+        # Get the frame height of the parent and assume that the window will
+        # have a similar frame.  Note that we would really like the height of
+        # just the top of the frame.
+        pw = parent.window()
+        fheight = pw.frameGeometry().height() - pw.height()
+    else:
+        # Special case of parent being a screen position and size tuple (used
+        # to pop-up a dialog for a table cell):
+        x, y, cdx, cdy = parent
 
-   def on_event ( self, *args ):
-       self.delegate( self, *args )
+        fheight = 0
+
+    x -= (width - cdx) / 2
+    y += cdy + fheight
+
+    # Position the window (making sure it will fit on the screen).
+    window.move(max(0, min(x, screen_dx - width)),
+                max(0, min(y, screen_dy - height)))
 
 #-------------------------------------------------------------------------------
 #  Recomputes the mappings for a new set of enumeration values:

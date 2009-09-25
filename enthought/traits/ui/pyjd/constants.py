@@ -35,17 +35,25 @@ import sys
 #  Constants:
 #------------------------------------------------------------------------------
 
+# Color of valid input.
 OKColor = "White"
 
+# Color to highlight input errors.
 ErrorColor = "#%02x%02x%02x" % ( 255, 192, 192 )
 
+# Color for background of windows (like dialog background color).
 if (sys.platform == 'darwin'):
     WindowColor = "#%02x%02x%02x" % ( 232, 232, 232 )
 else:
     WindowColor = "#%02x%02x%02x" % ( 244, 243, 238 )
 
+# Color for background of read-only fields.
 ReadonlyColor = WindowColor
 
+# Color for background of fields where objects can be dropped.
+DropColor = QtGui.QColor( 215, 242, 255 )
+
+# Default dialog title.
 DefaultTitle = "Edit properties"
 
 # EOF -------------------------------------------------------------------------
