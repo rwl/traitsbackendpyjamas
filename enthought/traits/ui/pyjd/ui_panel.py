@@ -33,7 +33,7 @@ import re
 
 from enthought.traits.api import Undefined
 from enthought.traits.ui.api import Group
-from enthought.pyface.api import HeadingText
+#from enthought.pyface.api import HeadingText
 
 from pyjamas.ui.Widget import Widget
 from pyjamas.ui.VerticalPanel import VerticalPanel
@@ -43,7 +43,7 @@ from pyjamas.ui.ScrollPanel import ScrollPanel
 from pyjamas.ui.FlowPanel import FlowPanel
 from pyjamas.ui.Label import Label
 from pyjamas.ui.FlexTable import FlexTable
-from pyjamas.ui.HasHorizontalAlignment import HasHorizontalAlignment
+from pyjamas.ui import HasHorizontalAlignment
 
 from pyjamas.ui.vertsplitpanel import VerticalSplitPanel
 from pyjamas.ui.horizsplitpanel import HorizontalSplitPanel
@@ -61,7 +61,7 @@ all_digits = re.compile( r'\d+' )
 #  Creates a panel-based user interface for a specified UI object:
 #------------------------------------------------------------------------------
 
-def panel ( ui, parent ):
+def panel ( ui ):
     """ Creates a panel-based user interface for a specified UI object.
     """
     # Bind the context values to the 'info' object:
@@ -347,13 +347,13 @@ class _GroupPanel(object):
         if show_labels or columns > 1:
             inner = FlexTable(Width="100%")
 #            inner.getFlexCellFormatter().setColSpan(0, 0, 2)
-            inner.getFlexCellFormatter().setHorizontalAlignment(0, 0,
-                HasHorizontalAlignment.ALIGN_CENTER)
+#            inner.getFlexCellFormatter().setHorizontalAlignment(0, 0,
+#                HasHorizontalAlignment.ALIGN_CENTER)
 
             if outer is None:
                 outer = inner
             else:
-                outer.addLayout(inner)
+                outer.add(inner)
 
             row = 0
             if show_left:
@@ -372,11 +372,13 @@ class _GroupPanel(object):
             inner = outer
 
             row = -1
-            label_alignment = 0
+            label_alignment = HasHorizontalAlignment.ALIGN_RIGHT
 
         # Process each Item in the list:
         col = -1
         for item in content:
+
+            print "COLUMNS:", row, col, columns
 
             # Keep a track of the current logical row and column unless the
             # layout is not a grid.
@@ -412,19 +414,19 @@ class _GroupPanel(object):
                 cols = columns
 
                 # See if the layout is a grid.
-                if row >= 0:
-                    # Move to the start of the next row if necessary.
-                    if col > 0:
-                        col = 0
-                        row += 1
-
-                    # Skip the row we are about to do.
-                    row += 1
-
-                    # Allow for the columns.
-                    if show_labels:
-                        cols *= 2
-
+#                if row >= 0:
+#                    # Move to the start of the next row if necessary.
+#                    if col > 0:
+#                        col = 0
+#                        row += 1
+#
+#                    # Skip the row we are about to do.
+#                    row += 1
+#
+#                    # Allow for the columns.
+#                    if show_labels:
+#                        cols *= 2
+#
 #                for i in range(cols):
 #                    line = QtGui.QFrame()
 #
@@ -482,6 +484,9 @@ class _GroupPanel(object):
                 label = self._create_label(item, ui, desc)
                 self._add_widget(inner, label, row, col, show_labels,
                                  label_alignment)
+
+                col += 1
+
             else:
                 label = None
 
@@ -629,23 +634,22 @@ class _GroupPanel(object):
 
     def _add_widget(self, layout, w, row, column, show_labels,
                     label_alignment=HasHorizontalAlignment.ALIGN_RIGHT):
-        """Adds a widget to a layout taking into account the orientation and
-           the position of any labels.
+        """ Adds a widget to a panel taking into account the orientation and
+            the position of any labels.
         """
         # If the widget really is a widget then remove any margin so that it
         # fills the cell.
-        if isinstance(w, Widget):
-            wl = w.layout()
-            if wl is not None:
-                wl.setMargin(0)
+#        if isinstance(w, Widget):
+#            wl = w.layout()
+#            if wl is not None:
+#                wl.setMargin(0)
 
-        # See if the layout is a grid.
+
+        print "ADDING WIDGET", row, column, w, show_labels, label_alignment
+
+        # See if the layout is not a grid.
         if row < 0:
-            if isinstance(w, Widget):
-                layout.add(w)
-            else:
-                layout.add(w)
-
+            layout.add(w)
         else:
             if self.is_horizontal:
                 # Flip the row and column.
@@ -657,19 +661,19 @@ class _GroupPanel(object):
 
                 # Determine whether to place widget on left or right of
                 # "logical" column.
-                if (label_alignment != 0 and not self.group.show_left) or \
-                   (label_alignment == 0 and self.group.show_left):
+                if (label_alignment != "right" and not self.group.show_left) \
+                    or (label_alignment == "right" and self.group.show_left):
                     column += 1
 
             if isinstance(w, Widget):
                 layout.setWidget(row, column, w)
-                layout.getFlexCellFormatter().setHorizontalAlignment(0, 0,
-                    label_alignment)
+                layout.getFlexCellFormatter().setHorizontalAlignment(row,
+                    column, label_alignment)
 
             else:
                 layout.addWidget(row, column, w)
-                layout.getFlexCellFormatter().setHorizontalAlignment(0, 0,
-                    label_alignment)
+                layout.getFlexCellFormatter().setHorizontalAlignment(row,
+                    column, label_alignment)
 
 
     def _create_label(self, item, ui, desc, suffix = ':'):
@@ -678,6 +682,8 @@ class _GroupPanel(object):
         label = item.get_label(ui)
         if (label == '') or (label[-1:] in '?=:;,.<>/\\"\'-+#|'):
             suffix = ''
+
+        print "LABEL:", label + suffix
 
         control = Label(label + suffix)
 
@@ -699,204 +705,6 @@ class _GroupPanel(object):
         """Adds emphasis to a specified control's font.
         """
         print "Emphasis is not implemented."
-
-#class _GroupPanel:
-#    """ A subpanel for a single group of items.
-#    """
-#
-#    #---------------------------------------------------------------------------
-#    #  Initializes the object:
-#    #---------------------------------------------------------------------------
-#
-#    def __init__ ( self, panel, group, ui, suppress_label ):
-#        """ Initializes the object.
-#        """
-#        # Get the contents of the group:
-#        content = group.get_content()
-#
-#        # Create a group editor object if one is needed:
-#        self.control = editor = None
-#
-#        self.ui            = ui
-#        self.group         = group
-#        self.is_horizontal = (group.orientation == 'horizontal')
-#        layout             = group.layout
-#        is_scrolled_panel  = group.scrollable
-#        is_splitter        = (layout == 'split')
-#        is_tabbed          = (layout == 'tabbed')
-#        id                 = group.id
-#
-#        # Assume our contents are not resizable:
-#        self.resizable = False
-#
-#        if self.is_horizontal:
-#            innerpanel = HorizontalPanel()
-#            panel.add(innerpanel)
-#        else:
-#            innerpanel = VerticalPanel()
-#            panel.add(innerpanel)
-#        panel = innerpanel
-#
-#        if len( content ) > 0:
-#            if is_tabbed:
-#                self.resizable = group.springy
-#                dw = create_notebook_for_items( content, ui, panel, group,
-#                                                self.add_notebook_item )
-##                if editor is not None:
-##                    editor.dock_window = dw
-#
-#                panel.add(dw)
-#            # Check if content is all Group objects:
-#            elif isinstance( content[0], Group ):
-#                # If so, add them to the panel and exit:
-#                self.add_groups( content, panel )
-#            else:
-#                self.add_items( content, panel )
-#
-#
-#    def add_items( self, content, panel ):
-#        """ Adds a list of Item objects to the panel.
-#        """
-#        # Get local references to various objects we need:
-#        ui      = self.ui
-#        info    = ui.info
-#        handler = ui.handler
-#
-#        group     = self.group
-#        show_left = group.show_left
-#        padding   = group.padding
-#        col       = -1
-#        col_incr  = 1
-#
-#        show_labels = False
-#        for item in content:
-#            show_labels |= item.show_label
-#
-#        # Process each Item in the list:
-#        for item in content:
-#            # Get the name in order to determine its type:
-#            name = item.name
-#
-#            # Check if is a label:
-#            if name == '':
-#                Label( item.label )
-#
-#            # Check if it is a separator:
-#            if name == '_':
-##                raise NotImplementedError, "Separators aren't implemented."
-#                print "Separators aren't implemented."
-#                return
-#
-#            # Convert a blank to a 5 pixel spacer:
-#            if name == ' ':
-#                name = '5'
-#
-#            # Check if it is a spacer:
-#            if all_digits.match( name ):
-#                # If so, add the appropriate amount of space to the sizer:
-#                n = int( name )
-#
-#                raise NotImplementedError, "Spacers aren't implemented."
-#
-#            # Otherwise, it must be a trait Item:
-#            object = eval( item.object_, globals(), ui.context )
-#            trait  = object.base_trait( name )
-#            desc   = trait.desc or ''
-#            label  = None
-#
-#            # If we are displaying labels on the left, add the label to the
-#            # user interface:
-#            if item.show_label:
-#                label = self.create_label( item, ui, desc, panel )
-#            elif (cols > 1) and show_labels:
-#                label = self.dummy_label( panel )
-#
-#            # Get the editor factory associated with the Item:
-#            editor_factory = item.editor
-#            if editor_factory is None:
-#                editor_factory = trait.get_editor()
-#
-#                # If still no editor factory found, use a default text editor:
-#                if editor_factory is None:
-#                    from text_editor import ToolkitEditorFactory
-#                    editor_factory = ToolkitEditorFactory()
-#
-#            item_panel = panel
-#
-#            # Create the requested type of editor from the editor factory:
-#            factory_method = getattr( editor_factory, item.style + '_editor' )
-#
-#            editor = factory_method( ui, object, name, item.tooltip,
-#                item_panel ).set( item        = item,
-#                                  object_name = item.object )
-#
-#            # Tell editor to actually build the editing widget:
-#            editor.prepare( item_panel )
-#
-#            # Set the initial 'enabled' state of the editor from the factory:
-#            editor.enabled = editor_factory.enabled
-#
-#            # Set the correct size on the control, as specified by the user:
-#            scrollable  = editor.scrollable
-#            item_width  = item.width
-#            item_height = item.height
-#            growable    = 0
-#            if (item_width != -1.0) or (item_height != -1.0):
-#                if (0.0 < item_width <= 1.0) and self.is_horizontal:
-#                    growable   = int( 1000.0 * item_width )
-#                    item_width = -1
-#
-#                item_width = int( item_width )
-#                if item_width < -1:
-#                    item_width = -item_width
-#                elif item_width != -1:
-#                    item_width = max( item_width, width )
-#
-#                if (0.0 < item_height <= 1.0) and (not self.is_horizontal):
-#                    growable    = int( 1000.0 * item_height )
-#                    item_height = -1
-#
-#                item_height = int( item_height )
-#                if item_height < -1:
-#                    item_height = -item_height
-#                elif item_height != -1:
-#                    item_height = max( item_height, height )
-#
-#                w = str( item_width ) + "px"
-#                h = str( item_height ) + "px"
-#                control.setSize( width = w, height = h )
-#
-#    #---------------------------------------------------------------------------
-#    #  Creates an item label:
-#    #---------------------------------------------------------------------------
-#
-#    def create_label ( self, item, ui, desc, parent, suffix = ':' ):
-#        """ Creates an item label.
-#        """
-#
-#        label = item.get_label( ui )
-#        print item, label
-#        if (label == '') or (label[-1:] in '?=:;,.<>/\\"\'-+#|'):
-#            suffix = ''
-#
-#        control = Label( text = label + suffix, wordWrap = False )
-#        parent.add( control )
-#
-##        listener = TooltipListener( desc )
-##        control.addMouseListener( listener )
-#
-#        return control
-#
-#    #---------------------------------------------------------------------------
-#    #  Creates a dummy item label:
-#    #---------------------------------------------------------------------------
-#
-#    def dummy_label ( self, parent ):
-#        """ Creates an item label.
-#        """
-#        control = Label( text = "" )
-#        parent.add( control )
-#        return control
 
 #-------------------------------------------------------------------------------
 #  A pseudo-editor that allows a group to be managed.:

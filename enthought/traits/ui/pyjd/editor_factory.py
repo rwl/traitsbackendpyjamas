@@ -29,8 +29,8 @@
 #  Imports:
 #------------------------------------------------------------------------------
 
-from pyjamas.ui import \
-    TextArea, TextBox
+from pyjamas.ui.TextArea import TextArea
+from pyjamas.ui.TextBox import TextBox
 
 from editor \
     import Editor
@@ -62,7 +62,7 @@ class ReadonlyEditor ( Editor ):
             control = TextBox()
 
         control.setEnabled( False )
-        control.setStyleName( element = "color", style = WindowColor )
+#        control.setStyleName( element = "color", style = WindowColor )
 
         self.control = control
         self.set_tooltip()

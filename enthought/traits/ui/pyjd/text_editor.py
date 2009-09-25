@@ -50,10 +50,7 @@ from editor_factory \
     import ReadonlyEditor as BaseReadonlyEditor
 
 from constants \
-    import OKColor
-
-from helper \
-    import PyjsDelegate
+    import OKColor, ErrorColor
 
 #------------------------------------------------------------------------------
 #  Start logging:
@@ -108,7 +105,8 @@ class SimpleEditor ( Editor ):
         if factory.password:
             control = PasswordTextBox()
         elif multi_line:
-            control = TextArea()
+#            control = TextArea()
+            control = TextBox()
         else:
             control = TextBox()
 
@@ -123,7 +121,7 @@ class SimpleEditor ( Editor ):
 #        if factory.auto_set:
 #           control.addKeyboadListener( self.update_object )
 
-        parent.add(control)
+#        parent.add(control)
         self.control = control
         self.set_tooltip()
 

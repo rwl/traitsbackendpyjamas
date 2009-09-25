@@ -21,7 +21,7 @@
 #  IN THE SOFTWARE.
 #------------------------------------------------------------------------------
 
-""" Define the Pjjamas implementation of the various button editors and the
+""" Define the Pyjamas implementation of the various button editors and the
     button editor factory.
 """
 
@@ -30,9 +30,21 @@
 #------------------------------------------------------------------------------
 
 from pyjamas.ui.Button import Button
+from pyjamas.ui.CheckBox import CheckBox
+from pyjamas.ui.RadioButton import RadioButton
+
+
+from enthought.traits.api \
+    import Unicode
 
 from enthought.traits.trait_base import \
     user_name_for
+
+# FIXME: ToolkitEditorFactory is a proxy class defined here just for backward
+# compatibility. The class has been moved to the
+# enthought.traits.ui.editors.button_editor file.
+from enthought.traits.ui.editors.button_editor \
+    import ToolkitEditorFactory
 
 from editor import \
     Editor
@@ -42,6 +54,15 @@ from editor import \
 #------------------------------------------------------------------------------
 
 class SimpleEditor ( Editor ):
+    """ Simple style editor for a button.
+    """
+
+    #---------------------------------------------------------------------------
+    #  Trait definitions:
+    #---------------------------------------------------------------------------
+
+    # The button label
+    label = Unicode
 
     #--------------------------------------------------------------------------
     #  Finishes initialising the editor by creating the underlying toolkit
@@ -55,10 +76,18 @@ class SimpleEditor ( Editor ):
         label = self.factory.label
         if label == '':
             label = user_name_for( self.name )
-        self.control = control = Button( label )#parent,
-#                                         text     = label,
-#                                         listener = self.update_object )
-        parent.add( control )
+#            label = self.item.get_label( self.ui )
+        self.sync_value( self.factory.label_value, 'label', 'from' )
+        self.control = control = Button(label, getattr(self, "update_object"))
+#        parent.add( control )
+        self.set_tooltip()
+
+    #---------------------------------------------------------------------------
+    #  Handles the 'label' trait being changed:
+    #---------------------------------------------------------------------------
+
+    def _label_changed ( self, label ):
+        self.control.setText( self.string_value( label ) )
 
     #--------------------------------------------------------------------------
     #  Handles the user clicking the button by setting the value on the object:
@@ -70,6 +99,11 @@ class SimpleEditor ( Editor ):
         """
         self.value = self.factory.value
 
+        # If there is an associated view, then display it:
+        if (self.factory is not None) and (self.factory.view is not None):
+            self.object.edit_traits( view   = self.factory.view,
+                                     parent = self.control )
+
     #--------------------------------------------------------------------------
     #  Updates the editor when the object trait changes external to the editor:
     #--------------------------------------------------------------------------
@@ -79,5 +113,44 @@ class SimpleEditor ( Editor ):
             editor.
         """
         pass
+
+#-------------------------------------------------------------------------------
+#  'CustomEditor' class:
+#-------------------------------------------------------------------------------
+
+class CustomEditor ( SimpleEditor ):
+    """ Custom style editor for a button, which can contain an image.
+    """
+
+    # The mapping of button styles to Qt classes.
+    _STYLE_MAP = {
+        'checkbox': CheckBox,
+        'radio':    RadioButton,
+        'toolbar':  Button
+    }
+
+    #---------------------------------------------------------------------------
+    #  Finishes initializing the editor by creating the underlying toolkit
+    #  widget:
+    #---------------------------------------------------------------------------
+
+    def init ( self, parent ):
+        """ Finishes initializing the editor by creating the underlying toolkit
+            widget.
+        """
+        # FIXME: We ignore orientation, width_padding and height_padding.
+
+        factory = self.factory
+
+        btype = self._STYLE_MAP.get( factory.style, Button )
+        self.control = btype()
+        self.control.setText( self.string_value( factory.label ) )
+
+        if factory.image is not None:
+#            self.control.setIcon(factory.image.create_icon())
+            raise NotImplementedError
+
+        self.control.addClickListener( getattr(self, "update_object") )
+        self.set_tooltip()
 
 # EOF -------------------------------------------------------------------------

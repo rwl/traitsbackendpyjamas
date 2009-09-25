@@ -35,6 +35,7 @@ from pyjamas import Window
 from pyjamas.ui.RootPanel import RootPanel
 from pyjamas.ui.PopupPanel import PopupPanel
 from pyjamas.ui.VerticalPanel import VerticalPanel
+from pyjamas.ui.HorizontalPanel import HorizontalPanel
 
 from ui_base import BaseDialog
 
@@ -42,7 +43,7 @@ from ui_panel import panel
 
 from enthought.traits.ui.undo import UndoHistory
 
-from enthought.traits.ui.menu import UndoButton, RevertButton, OKButton,
+from enthought.traits.ui.menu import UndoButton, RevertButton, OKButton, \
     CancelButton, HelpButton
 
 #-------------------------------------------------------------------------------
@@ -165,13 +166,11 @@ class _LiveWindow(BaseDialog):
                         self._on_revertable(True)
 
                 elif self.is_button(button, 'OK'):
-                    self.ok = self.add_button(button, bbox,
-                            self.control.accept)
+                    self.ok = self.add_button(button, bbox)
                     ui.on_trait_change(self._on_error, 'errors', dispatch='ui')
 
                 elif self.is_button(button, 'Cancel'):
-                    self.add_button(button, bbox,
-                            self.control.reject)
+                    self.add_button(button, bbox)
 
                 elif self.is_button(button, 'Help'):
                     self.add_button(button, bbox, self._on_help)

@@ -68,16 +68,16 @@ class SimpleEditor ( SimpleTextEditor ):
 
         # Because we're going to add a FileUpload widget, we'll need to set the
         # form to use the POST method, and multipart MIME encoding.
-        control.setEncoding(FormPanel.ENCODING_MULTIPART)
-        control.setMethod(FormPanel.METHOD_POST)
+        control.setEncoding( FormPanel.ENCODING_MULTIPART )
+        control.setMethod( FormPanel.METHOD_POST )
 
         upload = FileUpload()
         upload.setName("File...")
         factory = self.factory
-        control.add(upload)
+        control.add( upload )
 
         # Add a 'submit' button.
-        control.add(Button("Submit", self))
+        control.add( Button("Submit", self) )
 
 #        if factory.enter_set:
 #            control.addFormHandler( self.update_object, "<Return>" )
@@ -87,7 +87,7 @@ class SimpleEditor ( SimpleTextEditor ):
 #        if factory.auto_set:
 #           control.addKeyboadListener( self.update_object )
 
-        parent.add( control )
+#        parent.add( control )
         self.control = control
         self.set_tooltip()
 
@@ -113,7 +113,7 @@ class CustomEditor ( SimpleTextEditor ):
             widget.
         """
         control = FileUpload()
-        factory = self.factory
+#        factory = self.factory
 
         control.onLoad( self.update_object )
 

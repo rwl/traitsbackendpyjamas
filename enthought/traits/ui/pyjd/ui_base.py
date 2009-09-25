@@ -20,7 +20,6 @@
 #  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 #  IN THE SOFTWARE.
 #------------------------------------------------------------------------------
-from library.pyjamas.ui import HorizontalPanel
 
 """ Defines a base class for the Pyjamas modal and non-modal dialogs.
 """
@@ -29,10 +28,15 @@ from library.pyjamas.ui import HorizontalPanel
 #  Imports:
 #------------------------------------------------------------------------------
 
+import pyjd
+
+from pyjamas.ui.RootPanel import RootPanel
 from pyjamas.ui.Button import Button
 from pyjamas.ui.RootPanel import RootPanel
 from pyjamas.ui.DialogBox import DialogBox
 from pyjamas.ui.Label import Label
+from pyjamas.ui.HorizontalPanel import HorizontalPanel
+from pyjamas.ui.VerticalPanel import VerticalPanel
 
 #from Tooltip import TooltipListener
 
@@ -166,7 +170,7 @@ class BasePanel(object):
     #  Creates a user specified button:
     #---------------------------------------------------------------------------
 
-    def add_button ( self, action, bbox, role, method=None, enabled=True,
+    def add_button ( self, action, bbox, method=None, enabled=True,
                      name=None ):
         """ Creates a button.
         """
@@ -272,9 +276,13 @@ class BaseDialog(BasePanel):
         """
         self.control = control = DialogBox(modal=(style == BaseDialog.MODAL))
 
+        master = self.master = VerticalPanel()
+
+        control.setWidget(master)
+
         view = self.ui.view
 
-        control.setTitle(view.title or DefaultTitle)
+#        control.setTitle(view.title or DefaultTitle)
 
 #        QtCore.QObject.connect(control, QtCore.SIGNAL('finished(int)'),
 #                self._on_finished)
@@ -285,11 +293,12 @@ class BaseDialog(BasePanel):
         to the dialog."""
 
         if panel is not None:
-            self.control.setWidget(panel)
+#            self.control.setWidget(panel)
+            self.master.add(panel)
 
         # Add the optional buttons.
         if buttons is not None:
-            self.control.add(buttons)
+            self.master.add(buttons)
 
         # Add the menu bar, tool bar and status bar (if any).
         self._add_menubar()
@@ -315,7 +324,7 @@ class BaseDialog(BasePanel):
         try:
             ui.prepare_ui()
         except:
-#            ui.control.setParent(None)
+            ui.control.setParent(None)
             ui.control.ui = None
             ui.control = None
             ui.owner = None
@@ -325,11 +334,17 @@ class BaseDialog(BasePanel):
         ui.handler.position(ui.info)
 #        restore_window(ui)
 
+        RootPanel().add(ui.control)
+        pyjd.run()
+
         if style == BaseDialog.NONMODAL:
             ui.control.show()
         else:
 #            ui.control.setWindowModality(QtCore.Qt.WindowModal)
             ui.control.exec_()
+
+        RootPanel().add(ui.control)
+        pyjd.run()
 
 
     def set_icon(self, icon=None):
@@ -361,7 +376,7 @@ class BaseDialog(BasePanel):
             self._last_group = self._last_parent = None
 #            self.control.layout().setMenuBar(
 #                menubar.create_menu_bar( self.control, self ) )
-            self.control.add( menubar.create_menu_bar( self.control, self ) )
+            self.master.add( menubar.create_menu_bar( self.control, self ) )
             self._last_group = self._last_parent = None
 
     #---------------------------------------------------------------------------
@@ -376,7 +391,7 @@ class BaseDialog(BasePanel):
             self._last_group = self._last_parent = None
             toolbar_panel = toolbar.create_tool_bar( self.control, self )
 #            qt_toolbar.setMovable( False )
-            self.control.add( toolbar_panel )
+            self.master.add( toolbar_panel )
             self._last_group = self._last_parent = None
 
     #---------------------------------------------------------------------------
@@ -416,7 +431,7 @@ class BaseDialog(BasePanel):
                 obj.on_trait_change(set_text, name, dispatch='ui')
                 listeners.append((obj, set_text, name))
 
-            self.control.add(control)
+            self.master.add(control)
             self.ui._statusbar = listeners
 
 

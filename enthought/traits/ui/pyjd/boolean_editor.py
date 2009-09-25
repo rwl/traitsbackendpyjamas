@@ -49,8 +49,8 @@ from text_editor \
 from constants \
     import ReadonlyColor
 
-from helper \
-    import PyjsDelegate
+#from helper \
+#    import PyjsDelegate
 
 #------------------------------------------------------------------------------
 #  'SimpleEditor' class:
@@ -69,18 +69,18 @@ class SimpleEditor ( Editor ):
             widget.
         """
         self.control = control = CheckBox()
-        parent.add( control )
-#        control.addClickListener( self.update_object )
+#        parent.add( control )
+        control.addClickListener( self, "update_object" )
         self.set_tooltip()
 
     #--------------------------------------------------------------------------
     #  Handles the user clicking on the checkbox:
     #--------------------------------------------------------------------------
 
-    def update_object ( self, delegate ):
+    def update_object ( self, sender=None ):
         """ Handles the user clicking the checkbox.
         """
-        self.value = (delegate.isChecked() != 0)
+        self.value = (self.control.isChecked() != False)
 
     #--------------------------------------------------------------------------
     #  Updates the editor when the object trait changes external to the editor:
@@ -107,9 +107,8 @@ class ReadonlyEditor ( Editor ):
         """ Finishes initialising the editor by creating the underlying toolkit
             widget.
         """
-        control = Label( text = '' )
-        parent.add( control )
-        self.control = control
+        control = self.control = Label( text = '' )
+#        parent.add( control )
 
     #---------------------------------------------------------------------------
     #  Updates the editor when the object trait changes external to the editor:

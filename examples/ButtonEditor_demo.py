@@ -29,11 +29,11 @@ class ButtonEditorDemo ( HasTraits ):
     # (Note that Text and ReadOnly versions are not applicable)
     event_group = Group(
         Item( 'fire_event', style = 'simple', label = 'Simple' ),
-        Item( '_' ),
+#        Item( '_' ),
         Item( 'fire_event', style = 'custom', label = 'Custom' ),
-        Item( '_' ),
+#        Item( '_' ),
         Item( label = '[text style unavailable]' ),
-        Item( '_' ),
+#        Item( '_' ),
         Item( label = '[read only style unavailable]' )
     )
 
