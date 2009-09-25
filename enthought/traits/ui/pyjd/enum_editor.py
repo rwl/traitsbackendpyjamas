@@ -232,7 +232,7 @@ class SimpleEditor ( BaseEditor ):
     #  Handles the user selecting a new value from the combo box:
     #---------------------------------------------------------------------------
 
-    def update_object (self):
+    def update_object (self, event=None):
         """ Handles the user selecting a new value from the combo box.
         """
         if self._no_enum_update == 0:
@@ -271,7 +271,7 @@ class SimpleEditor ( BaseEditor ):
     #  Updates the editor when the object trait changes external to the editor:
     #---------------------------------------------------------------------------
 
-    def update_editor ( self ):
+    def update_editor ( self, event=None ):
         """ Updates the editor when the object trait changes externally to the
             editor.
         """
@@ -340,8 +340,8 @@ class RadioEditor ( BaseEditor ):
         """
         super( RadioEditor, self ).init( parent )
 
-        self.panel = FlexTable( BorderWidth=1, Width="100%" )
-        self.panel.addTableListener( self.update_object )
+        self.control = FlexTable( BorderWidth=0, Width="100%" )
+        self.control.addTableListener( self.update_object )
 
         self.rebuild_editor()
 
@@ -365,13 +365,13 @@ class RadioEditor ( BaseEditor ):
         """ Updates the editor when the object trait changes externally to the
             editor.
         """
-        table = self.panel
+        table = self.control
         value = self.value
 
         for row in range( table.getRowCount() ):
-            for cell in range( table.getCellCount() ):
-                rb = table.getWidget(row, cell)
-                rb.setChecked(rb.getText == value)
+            for cell in range( table.getCellCount( row ) ):
+                rb = table.getWidget( row, cell )
+                rb.setChecked( rb.getText == value )
 
     #---------------------------------------------------------------------------
     #  Rebuilds the contents of the editor whenever the original factory
@@ -383,7 +383,7 @@ class RadioEditor ( BaseEditor ):
             object's **values** trait changes.
         """
         # Clear any existing content:
-        self.clear_layout()
+        self.control.clear()
 
         # Get the current trait value:
         cur_name = self.str_value
@@ -431,7 +431,7 @@ class RadioEditor ( BaseEditor ):
         """ Returns the Pyjamas Button used for the radio button.
         """
         label = self.string_value(name, capitalize)
-        return RadioButton( group=id( self ), label=label )
+        return RadioButton( group=str( id( self ) ), label=label )
 
 
 #class SimpleEditor ( BaseEditor ):
@@ -617,7 +617,7 @@ class RadioEditor ( BaseEditor ):
 #        """
 #        super( RadioEditor, self ).init( parent )
 #
-#        # Create a panel to hold all of the radio buttons:
+#        # Create a control to hold all of the radio buttons:
 #        control = Panel()
 #        parent.add( control )
 #

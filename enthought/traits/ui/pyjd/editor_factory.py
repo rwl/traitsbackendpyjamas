@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-#  Copyright (c) 2005, Enthought, Inc.
+#  Copyright (c) 2007, Riverbank Computing Limited
 #  Copyright (c) 2009, Richard Lincoln
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -32,11 +32,82 @@
 from pyjamas.ui.TextArea import TextArea
 from pyjamas.ui.TextBox import TextBox
 
+from enthought.traits.api \
+    import TraitError
+
 from editor \
     import Editor
 
 from constants \
     import WindowColor
+
+#-------------------------------------------------------------------------------
+#  'SimpleEditor' class:
+#-------------------------------------------------------------------------------
+
+class SimpleEditor ( Editor ):
+    """ Base class for simple style editors, which displays a text field
+    containing the text representation of the object trait value. Clicking in
+    the text field displays an editor-specific dialog box for changing the
+    value.
+    """
+    #---------------------------------------------------------------------------
+    #  Finishes initializing the editor by creating the underlying toolkit
+    #  widget:
+    #---------------------------------------------------------------------------
+
+    def init ( self, parent ):
+        """ Finishes initializing the editor by creating the underlying toolkit
+            widget.
+        """
+        self.control = TextBox()
+        self.set_tooltip()
+
+    #---------------------------------------------------------------------------
+    #  Invokes the pop-up editor for an object trait:
+    #
+    #  (Normally overridden in a subclass)
+    #---------------------------------------------------------------------------
+
+    def popup_editor(self):
+        """ Invokes the pop-up editor for an object trait.
+        """
+        pass
+
+#-------------------------------------------------------------------------------
+#  'TextEditor' class:
+#-------------------------------------------------------------------------------
+
+class TextEditor ( Editor ):
+    """ Base class for text style editors, which displays an editable text
+        field, containing a text representation of the object trait value.
+    """
+    #---------------------------------------------------------------------------
+    #  Finishes initializing the editor by creating the underlying toolkit
+    #  widget:
+    #---------------------------------------------------------------------------
+
+    def init ( self, parent ):
+        """ Finishes initializing the editor by creating the underlying toolkit
+            widget.
+        """
+        self.control = TextBox()
+
+        self.control.setText( self.str_value )
+        self.control.addChangeListener( getattr( self, "update_object" ) )
+        self.set_tooltip()
+
+    #---------------------------------------------------------------------------
+    #  Handles the user changing the contents of the edit control:
+    #---------------------------------------------------------------------------
+
+    def update_object(self):
+        """ Handles the user changing the contents of the edit control.
+        """
+        try:
+            self.value = unicode( self.control.getText() )
+        except TraitError, excp:
+            pass
 
 #------------------------------------------------------------------------------
 #  'ReadonlyEditor' class:

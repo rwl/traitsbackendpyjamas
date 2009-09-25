@@ -116,7 +116,7 @@ class SimpleEditor ( Editor ):
         if factory.enter_set and (not multi_line):
             control.addKeyboadListener(self.update_object, "<Return>")
 
-        control.addFocusListener( self.update_object )
+        control.addChangeListener( self.update_object )
 
 #        if factory.auto_set:
 #           control.addKeyboadListener( self.update_object )
@@ -135,7 +135,7 @@ class SimpleEditor ( Editor ):
         if (not self._no_update) and (self.control is not None):
             try:
                 self.value = self._get_user_value()
-                self.control.setStyleName( "color", OKColor )
+#                self.control.setStyleName( "color", OKColor )
 
                 if self._error is not None:
                     self._error     = None
@@ -201,7 +201,7 @@ class SimpleEditor ( Editor ):
         """ Handles an error that occurs while setting the object's trait value.
         """
         if self._error is None:
-            self.control.setStyleName( "color", ErrorColor )
+#            self.control.setStyleName( "color", ErrorColor )
             self._error = True
             self.ui.errors += 1
 

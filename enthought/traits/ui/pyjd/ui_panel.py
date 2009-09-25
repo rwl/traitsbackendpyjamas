@@ -140,7 +140,7 @@ def _fill_panel(panel, content, ui, item_handler=None):
         else:
             panel.add(new)
 
-    panel.setCurrentIndex(active)
+    panel.selectTab( active )
 
 #------------------------------------------------------------------------------
 #  "GroupPanel" class:
