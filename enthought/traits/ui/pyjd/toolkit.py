@@ -220,13 +220,13 @@ class GUIToolkit(Toolkit):
     #--------------------------------------------------------------------------
 
     # Boolean:
-    def boolean_editor ( self, *args, **traits ):
-        import boolean_editor as be
-        return be.ToolkitEditorFactory( *args, **traits )
-
-    # Text:
-    def text_editor ( self, *args, **traits ):
-        import text_editor as te
-        return te.ToolkitEditorFactory( *args, **traits )
+#    def boolean_editor ( self, *args, **traits ):
+#        import enthought.traits.ui.pyjd.boolean_editor as be
+#        return be.ToolkitEditorFactory( *args, **traits )
+#
+#    # Text:
+#    def text_editor ( self, *args, **traits ):
+#        import enthought.traits.ui.pyjd.text_editor as te
+#        return te.ToolkitEditorFactory( *args, **traits )
 
 # EOF -------------------------------------------------------------------------

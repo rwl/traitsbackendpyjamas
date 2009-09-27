@@ -202,12 +202,12 @@ class SimpleEditor ( BaseEditor ):
         for name in self.names:
             control.addItem(name)
 
-        self.control.addClickListener( getattr(self, "update_object") )
+        self.control.addChangeListener( getattr(self, "update_object") )
 
         if self.factory.evaluate is not None:
             print "Editable combo box not implemented."
 
-            control.setEditable(True)
+#            control.setEditable(True)
             self.control.addChangeLister( getattr(self, "update_text_object") )
 
         self._no_enum_update = 0

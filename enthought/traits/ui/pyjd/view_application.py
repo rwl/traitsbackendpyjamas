@@ -29,6 +29,9 @@
 #  Imports:
 #------------------------------------------------------------------------------
 
+import pyjd
+
+import os.path
 import traceback
 
 #-------------------------------------------------------------------------------
@@ -116,6 +119,10 @@ class ViewApplication:
                                      id         = self.id,
                                      scrollable = self.scrollable,
                                      args       = self.args )
+
+#        dir_path = os.path.dirname( __file__ )
+#        loader_path = os.path.join( dir_path, "TraitsBackendPyjamas.html" )
+#        pyjd.setup( loader_path )
 
 #        self.mainloop()
 

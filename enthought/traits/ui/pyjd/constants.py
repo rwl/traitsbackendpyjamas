@@ -51,7 +51,7 @@ else:
 ReadonlyColor = WindowColor
 
 # Color for background of fields where objects can be dropped.
-DropColor = QtGui.QColor( 215, 242, 255 )
+DropColor = "#%02x%02x%02x" % ( 215, 242, 255 )
 
 # Default dialog title.
 DefaultTitle = "Edit properties"

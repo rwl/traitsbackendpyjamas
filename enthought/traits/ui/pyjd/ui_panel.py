@@ -372,13 +372,11 @@ class _GroupPanel(object):
             inner = outer
 
             row = -1
-            label_alignment = HasHorizontalAlignment.ALIGN_RIGHT
+            label_alignment = HasHorizontalAlignment.ALIGN_LEFT
 
         # Process each Item in the list:
         col = -1
         for item in content:
-
-            print "COLUMNS:", row, col, columns
 
             # Keep a track of the current logical row and column unless the
             # layout is not a grid.
@@ -644,9 +642,6 @@ class _GroupPanel(object):
 #            if wl is not None:
 #                wl.setMargin(0)
 
-
-        print "ADDING WIDGET", row, column, w, show_labels, label_alignment
-
         # See if the layout is not a grid.
         if row < 0:
             layout.add(w)
@@ -682,8 +677,6 @@ class _GroupPanel(object):
         label = item.get_label(ui)
         if (label == '') or (label[-1:] in '?=:;,.<>/\\"\'-+#|'):
             suffix = ''
-
-        print "LABEL:", label + suffix
 
         control = Label(label + suffix)
 

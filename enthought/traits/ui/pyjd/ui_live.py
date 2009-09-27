@@ -36,6 +36,7 @@ from pyjamas.ui.RootPanel import RootPanel
 from pyjamas.ui.PopupPanel import PopupPanel
 from pyjamas.ui.VerticalPanel import VerticalPanel
 from pyjamas.ui.HorizontalPanel import HorizontalPanel
+from pyjamas.ui import HasAlignment
 
 from ui_base import BaseDialog
 
@@ -126,7 +127,10 @@ class _LiveWindow(BaseDialog):
         ui.history = history
 
         if (not no_buttons) and (has_buttons or view.help):
-            bbox = HorizontalPanel()
+            bbox = HorizontalPanel(width="100%")
+
+            bbox.setHorizontalAlignment(HasAlignment.ALIGN_RIGHT)
+            bbox.setVerticalAlignment(HasAlignment.ALIGN_RIGHT)
 
             # Create the necessary special function buttons.
             if nr_buttons == 0:

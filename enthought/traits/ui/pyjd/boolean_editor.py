@@ -28,7 +28,7 @@
 #  Imports:
 #------------------------------------------------------------------------------
 
-from pyjamas.ui.Checkbox import CheckBox
+from pyjamas.ui.CheckBox import CheckBox
 from pyjamas.ui.Label import Label
 
 # FIXME: ToolkitEditorFactory is a proxy class defined here just for backward
@@ -43,11 +43,11 @@ from editor \
 # This needs to be imported in here for use by the editor factory for boolean
 # editors (declared in enthought.traits.ui). The editor factory's text_editor
 # method will use the TextEditor in the ui.
-from text_editor \
-    import SimpleEditor as TextEditor
-
-from constants \
-    import ReadonlyColor
+#from text_editor \
+#    import SimpleEditor as TextEditor
+#
+#from constants \
+#    import ReadonlyColor
 
 #from helper \
 #    import PyjsDelegate
@@ -70,7 +70,7 @@ class SimpleEditor ( Editor ):
         """
         self.control = control = CheckBox()
 #        parent.add( control )
-        control.addClickListener( self, "update_object" )
+        control.addClickListener( getattr(self, "update_object") )
         self.set_tooltip()
 
     #--------------------------------------------------------------------------
