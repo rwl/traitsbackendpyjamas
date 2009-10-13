@@ -356,7 +356,7 @@ class BaseDialog(BasePanel):
             icon = ImageResource('frame')
 
 #        self.control.setWindowIcon(icon.create_icon())
-        print "Seting dialog icon is not implemented."
+        print "Setting dialog icon is not implemented."
 
 
     def _on_error(self, errors):

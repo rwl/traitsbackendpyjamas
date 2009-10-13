@@ -118,7 +118,7 @@ class TextEditor ( Editor ):
     #  Handles the user changing the contents of the edit control:
     #---------------------------------------------------------------------------
 
-    def update_object(self):
+    def update_object( self, sender ):
         """ Handles the user changing the contents of the edit control.
         """
         try:
